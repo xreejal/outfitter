@@ -13,7 +13,7 @@ export async function ensureSeedsLoaded(): Promise<void> {
     }))
   }
   if (!localStorage.getItem(POLLS_KEY)) {
-    loaders.push(fetch('/data/polls.json').then(r => r.json()).then(data => {
+    loaders.push(fetch('/data/polls2.json').then(r => r.json()).then(data => {
       localStorage.setItem(POLLS_KEY, JSON.stringify(data))
     }))
   }

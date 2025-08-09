@@ -5,6 +5,7 @@ import Create from "./screens/Create";
 import Vote from "./screens/Vote";
 import Recents from "./screens/Recents";
 import Saved from "./screens/Saved";
+import PollResults from "./screens/PollResults";
 import { CatalogProvider } from "./contexts/CatalogContext";
 import { PollsProvider } from "./contexts/PollsContext";
 import { SavedProvider } from "./contexts/SavedContext";
@@ -34,6 +35,11 @@ export function App() {
   }, []);
 
   const Screen = () => {
+    if (route.startsWith("/poll-results/")) {
+      const pollId = route.split("/poll-results/")[1];
+      return <PollResults pollId={pollId} navigate={navigate} />;
+    }
+    
     switch (route) {
       case "/create":
         return <Create navigate={navigate} />;

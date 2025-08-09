@@ -1,0 +1,92 @@
+[
+    {
+      "id": "poll_seed_001",
+      "authorId": "user_local",
+      "description": "Which weekend fit?",
+      "fitA": {
+        "id": "fit_seed_A",
+        "name": "Black",
+        "itemIds": [
+          "item_001",
+          "item_101",
+          "item_201"
+        ]
+      },
+      "fitB": {
+        "id": "fit_seed_B",
+        "name": "Blue",
+        "itemIds": [
+          "item_002",
+          "item_102",
+          "item_202"
+        ]
+      },
+      "createdAt": 1731000000000,
+      "status": "open",
+      "votes": {
+        "A": 3,
+        "B": 4
+      },
+      "voters": {}
+    },
+    {
+      "id": "poll_seed_002",
+      "authorId": "user_local",
+      "description": "Which formal fit?",
+      "fitA": {
+        "id": "fit_seed_A",
+        "name": "Brown",
+        "itemIds": [
+          "item_001",
+          "item_101",
+          "item_201"
+        ]
+      },
+      "fitB": {
+        "id": "fit_seed_B",
+        "name": "White",
+        "itemIds": [
+          "item_002",
+          "item_102",
+          "item_202"
+        ]
+      },
+      "createdAt": 1744780104000,
+      "status": "open",
+      "votes": {
+        "A": 13,
+        "B": 4
+      },
+      "voters": {}
+    },
+    {
+      "id": "poll_seed_003",
+      "authorId": "user_local",
+      "description": "Which casual fit?",
+      "fitA": {
+        "id": "fit_seed_A",
+        "name": "Pink",
+        "itemIds": [
+          "item_001",
+          "item_101",
+          "item_201"
+        ]
+      },
+      "fitB": {
+        "id": "fit_seed_B",
+        "name": "Green",
+        "itemIds": [
+          "item_002",
+          "item_102",
+          "item_202"
+        ]
+      },
+      "createdAt": 1754780104000,
+      "status": "open",
+      "votes": {
+        "A": 3,
+        "B": 42
+      },
+      "voters": {}
+    }
+  ]
