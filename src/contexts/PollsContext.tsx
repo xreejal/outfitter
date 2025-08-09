@@ -5,7 +5,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { Fit, Poll } from "../types";
+import { Fit, Poll, Item } from "../types";
 import {
   ensureSeedsLoaded,
   getLocal,
@@ -29,6 +29,7 @@ interface PollsContextValue {
   ) => Poll | undefined;
   getNextOpenPollForUser: (userId: string) => Poll | undefined;
   closePoll: (pollId: string) => void;
+  generateRandomBattle: () => Poll;
 }
 
 const PollsContext = createContext<PollsContextValue>({
@@ -39,6 +40,9 @@ const PollsContext = createContext<PollsContextValue>({
   voteOnPoll: () => undefined,
   getNextOpenPollForUser: () => undefined,
   closePoll: () => {},
+  generateRandomBattle: () => {
+    throw new Error("not ready");
+  },
 });
 
 export function usePolls(): PollsContextValue {
@@ -48,6 +52,39 @@ export function usePolls(): PollsContextValue {
 function save(polls: Poll[]) {
   setLocal(storageKeys.POLLS_KEY, polls);
 }
+
+// Helper functions for generating random battles
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function getRandomItems(items: Item[], count: number = 3): string[] {
+  const shuffled = shuffleArray(items);
+  return shuffled.slice(0, count).map(item => item.id);
+}
+
+const battleDescriptions = [
+  "Street style showdown - which one wins?",
+  "Casual Friday vibes - help me choose!",
+  "Weekend outfit battle - your vote counts!",
+  "Date night look - which is better?",
+  "Work meeting style - professional or trendy?",
+  "Coffee run outfit - comfort vs style?",
+  "Night out ensemble - which one pops?",
+  "Brunch date outfit - which catches your eye?",
+  "Concert look - edgy vs classic?",
+  "Shopping day style - practical or bold?",
+  "Gym to street transition - which works?",
+  "Vacation vibes - beachy or chic?",
+  "First impression outfit - which one?",
+  "Cozy autumn look - warm vs stylish?",
+  "Spring fresh style - which is your pick?"
+];
 
 export function PollsProvider({ children }: { children: React.ReactNode }) {
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -101,8 +138,18 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
         save(next);
         return updated;
       },
-      getNextOpenPollForUser: (userId: string) => {
-        return polls.find((p) => p.status === "open" && !p.voters[userId]);
+      getNextOpenPollForUser: (userId: string): Poll | undefined => {
+        const availablePoll = polls.find((p) => p.status === "open" && !p.voters[userId]);
+        
+        // If no available polls, generate a new one automatically
+        if (!availablePoll) {
+          const items = getLocal<Item[]>(storageKeys.CATALOG_KEY, []);
+          if (items.length >= 6) { // Need at least 6 items to create 2 fits
+            return api.generateRandomBattle();
+          }
+        }
+        
+        return availablePoll;
       },
       closePoll: (pollId: string) => {
         const idx = polls.findIndex((p) => p.id === pollId);
@@ -111,6 +158,40 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
         updated[idx] = { ...updated[idx], status: "closed" };
         setPolls(updated);
         save(updated);
+      },
+      generateRandomBattle: () => {
+        const items = getLocal<Item[]>(storageKeys.CATALOG_KEY, []);
+        const description = battleDescriptions[Math.floor(Math.random() * battleDescriptions.length)];
+        
+        const fitA: Fit = {
+          id: `fit_${Date.now()}_A`,
+          name: "A",
+          itemIds: getRandomItems(items, 4) // Get 4 items for 2x2 grid
+        };
+        
+        const fitB: Fit = {
+          id: `fit_${Date.now()}_B`,
+          name: "B", 
+          itemIds: getRandomItems(items, 4) // Get 4 items for 2x2 grid
+        };
+        
+        const poll: Poll = {
+          id: `poll_auto_${Date.now()}`,
+          authorId: "system",
+          description,
+          fitA,
+          fitB,
+          createdAt: Date.now(),
+          status: "open",
+          votes: { A: 0, B: 0 },
+          voters: {},
+        };
+        
+        const updated = [poll, ...polls];
+        setPolls(updated);
+        save(updated);
+        
+        return poll;
       },
     }),
     [polls]

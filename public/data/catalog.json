@@ -2,7 +2,7 @@
   {
     "id": "item_001",
     "title": "Oversized Wool Coat",
-    "imageUrl": "/create.png",
+    "imageUrl": "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=500&fit=crop",
     "price": 18000,
     "merchant": "Acme",
     "category": "outerwear"
@@ -10,7 +10,7 @@
   {
     "id": "item_101",
     "title": "Oxford Shirt",
-    "imageUrl": "/landing.png",
+    "imageUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=500&fit=crop",
     "price": 6500,
     "merchant": "Acme",
     "category": "tops"
@@ -18,7 +18,7 @@
   {
     "id": "item_201",
     "title": "Wide Chino",
-    "imageUrl": "/vote.png",
+    "imageUrl": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=500&fit=crop",
     "price": 9000,
     "merchant": "Acme",
     "category": "bottoms"
@@ -26,7 +26,7 @@
   {
     "id": "item_002",
     "title": "Puffer Jacket",
-    "imageUrl": "/recents.png",
+    "imageUrl": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=500&fit=crop",
     "price": 15000,
     "merchant": "Bravo",
     "category": "outerwear"
@@ -34,7 +34,7 @@
   {
     "id": "item_102",
     "title": "Crewneck Tee",
-    "imageUrl": "/saved.png",
+    "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop",
     "price": 2500,
     "merchant": "Bravo",
     "category": "tops"
@@ -42,7 +42,7 @@
   {
     "id": "item_202",
     "title": "Relaxed Jeans",
-    "imageUrl": "/voted_screen.png",
+    "imageUrl": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=500&fit=crop",
     "price": 8500,
     "merchant": "Bravo",
     "category": "bottoms"
