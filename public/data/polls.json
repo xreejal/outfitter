@@ -1,0 +1,21 @@
+[
+  {
+    "id": "poll_seed_001",
+    "authorId": "user_local",
+    "description": "Which weekend fit?",
+    "fitA": {
+      "id": "fit_seed_A",
+      "name": "A",
+      "itemIds": ["item_001", "item_101", "item_201"]
+    },
+    "fitB": {
+      "id": "fit_seed_B",
+      "name": "B",
+      "itemIds": ["item_002", "item_102", "item_202"]
+    },
+    "createdAt": 1731000000000,
+    "status": "open",
+    "votes": { "A": 3, "B": 4 },
+    "voters": {}
+  }
+]

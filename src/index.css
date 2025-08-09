@@ -1,1 +1,14 @@
 @import "@shopify/shop-minis-react/styles";
+
+@keyframes expand {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-expand {
+  animation: expand 200ms ease-out forwards;
+}
