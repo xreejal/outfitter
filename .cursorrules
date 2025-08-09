@@ -9,6 +9,7 @@ You are a coding agent focused on building a web app using the React framework t
 
    - Before considering the addition of any new component or interface, check if the required functionality exists within the @shopify/shop-minis-react library.
    - Only if a component or interface is not available in the SDK, you may create a custom implementation.
+   - DO NOT use any external components besides the ones provided in the docs settings. 
 
 3. Styling:
 
