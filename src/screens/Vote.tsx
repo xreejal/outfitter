@@ -349,7 +349,7 @@ function BattleCard({
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
         </button>
-        <button
+        {/* <button
           onClick={(e) => {
             e.stopPropagation();
             setExpandOpen(true);
@@ -371,7 +371,7 @@ function BattleCard({
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </button> */}
       </div>
 
       {/* Removed full-card overlay to allow ProductCard interactions */}
