@@ -166,13 +166,52 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
         choice: "A" | "B",
         userId: string
       ): Promise<Poll | undefined> => {
-        // Insert vote per pipeline spec; ignore uniqueness violations (already voted)
-        const { error: voteErr } = await supabase
+        // First try the pipeline schema: published_id + choice
+        const primary = await supabase
           .from("votes")
           .insert({ published_id: pollId, user_id: userId, choice })
           .select("id")
           .single();
-        if (voteErr && (voteErr as any).code !== "23505") throw voteErr as any;
+
+        // Handle uniqueness (already voted)
+        if (primary.error && (primary.error as any).code === "23505") {
+          // noop, proceed to fetch updated row
+        } else if (primary.error) {
+          // If missing columns (older schema), fall back to legacy insert using battle_id + chosen_fit_id
+          const missingColumn =
+            (primary.error as any).code === "PGRST204" ||
+            /column .* does not exist/i.test(
+              String((primary.error as any).message ?? "")
+            ) ||
+            /Could not find/.test(String((primary.error as any).message ?? ""));
+
+          if (missingColumn) {
+            // Resolve chosen_fit_id from published_battles
+            const { data: pubIds } = await supabase
+              .from("published_battles")
+              .select("fit_a_id, fit_b_id")
+              .eq("id", pollId)
+              .single();
+            const chosenFitId =
+              choice === "A" ? pubIds?.fit_a_id : pubIds?.fit_b_id;
+
+            const legacy = await supabase
+              .from("votes")
+              .insert({
+                battle_id: pollId,
+                user_id: userId,
+                chosen_fit_id: chosenFitId,
+              })
+              .select("id")
+              .single();
+            if (legacy.error && (legacy.error as any).code !== "23505") {
+              throw legacy.error as any;
+            }
+          } else {
+            // Some other error
+            throw primary.error as any;
+          }
+        }
 
         // Fetch updated published row for counters
         const { data: pub } = await supabase
@@ -209,11 +248,29 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
           .limit(20);
         if (error) return undefined;
 
-        const { data: voted } = await supabase
+        // Try new schema first
+        const votedNew = await supabase
           .from("votes")
           .select("published_id")
           .eq("user_id", userId);
-        const votedSet = new Set((voted ?? []).map((v: any) => v.published_id));
+
+        let votedSet = new Set<string>();
+        if (!votedNew.error) {
+          votedSet = new Set(
+            (votedNew.data ?? []).map((v: any) => v.published_id)
+          );
+        } else {
+          // Fallback to legacy schema (battle_id)
+          const votedLegacy = await supabase
+            .from("votes")
+            .select("battle_id")
+            .eq("user_id", userId);
+          if (!votedLegacy.error) {
+            votedSet = new Set(
+              (votedLegacy.data ?? []).map((v: any) => v.battle_id)
+            );
+          }
+        }
 
         const candidate = (published ?? []).find((b) => !votedSet.has(b.id));
         if (!candidate) return undefined;

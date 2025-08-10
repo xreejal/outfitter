@@ -201,9 +201,9 @@ function FitMediaStack({
         {/* Main fit view - larger grid */}
         <div className="bg-white rounded-2xl p-3">
           <div className="grid grid-cols-2 gap-2">
-            {(loading ? productIds : (products ?? []).map((p) => p.id))
+            {(loading ? productIds : (products ?? []).map((p: any) => p.id))
               .slice(0, 4)
-              .map((id, idx) => (
+              .map((id: string, idx: number) => (
                 <div
                   key={`${String(id)}-${idx}`}
                   className="overflow-hidden rounded-lg"
@@ -213,7 +213,7 @@ function FitMediaStack({
                     <ProductCardSkeleton />
                   ) : (
                     <ProductCard
-                      product={(products ?? []).find((p) => p.id === id)!}
+                      product={(products ?? []).find((p: any) => p.id === id)!}
                       onFavoriteToggled={() => {}}
                     />
                   )}
@@ -223,8 +223,8 @@ function FitMediaStack({
         </div>
         {/* Horizontal carousel of product cards */}
         <div className="flex gap-2 overflow-x-auto snap-x pb-2">
-          {(loading ? productIds : (products ?? []).map((p) => p.id)).map(
-            (id, idx) => (
+          {(loading ? productIds : (products ?? []).map((p: any) => p.id)).map(
+            (id: string, idx: number) => (
               <div
                 key={`c-${String(id)}-${idx}`}
                 className="flex-none w-40 snap-center"
@@ -234,7 +234,7 @@ function FitMediaStack({
                   <ProductCardSkeleton />
                 ) : (
                   <ProductCard
-                    product={(products ?? []).find((p) => p.id === id)!}
+                    product={(products ?? []).find((p: any) => p.id === id)!}
                     onFavoriteToggled={() => {}}
                   />
                 )}
@@ -252,9 +252,9 @@ function FitMediaStack({
       {/* Title pinned */}
       <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
       <div className="grid grid-cols-2 gap-2 pt-12">
-        {(loading ? productIds : (products ?? []).map((p) => p.id))
+        {(loading ? productIds : (products ?? []).map((p: any) => p.id))
           .slice(0, 4)
-          .map((id, idx) => (
+          .map((id: string, idx: number) => (
             <div
               key={`${String(id)}-${idx}`}
               className="rounded-lg overflow-hidden"
@@ -264,7 +264,7 @@ function FitMediaStack({
                 <ProductCardSkeleton />
               ) : (
                 <ProductCard
-                  product={(products ?? []).find((p) => p.id === id)!}
+                  product={(products ?? []).find((p: any) => p.id === id)!}
                   onFavoriteToggled={() => {}}
                 />
               )}
@@ -511,6 +511,7 @@ export default function Vote({
     ReturnType<typeof Object> | any
   >(null);
   const [resultPoll, setResultPoll] = useState<Poll | null>(null);
+  const [prefetchedNext, setPrefetchedNext] = useState<Poll | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -537,13 +538,24 @@ export default function Vote({
     setPhase("selected");
   }, [activeTab]);
 
-  // Auto-select the viewed tab when selectedSide is cleared (e.g., on new poll)
+  // Prefetch next unvoted while showing results
   useEffect(() => {
-    if (!selectedSide) {
-      setSelectedSide(activeTab);
-      setPhase("selected");
-    }
-  }, [selectedSide, activeTab]);
+    if (phase !== "results") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const next = await getNextOpenPollForUser(user.id);
+        if (!cancelled && next && next.id !== (resultPoll ?? currentPoll)?.id) {
+          setPrefetchedNext(next);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, user.id, getNextOpenPollForUser, currentPoll, resultPoll]);
 
   const totals = useMemo(() => {
     const p = currentPoll;
@@ -563,27 +575,62 @@ export default function Vote({
   async function handleSubmit() {
     if (!selectedSide || !currentPoll) return;
 
-    setPhase("submitting");
+    const optimistic: Poll = {
+      ...currentPoll,
+      votes: {
+        ...currentPoll.votes,
+        [selectedSide]: (currentPoll.votes[selectedSide] ?? 0) + 1,
+      },
+    } as Poll;
+    const optimisticTotal = optimistic.votes.A + optimistic.votes.B || 1;
+    const optimisticPercent = Math.round(
+      (optimistic.votes[selectedSide] / optimisticTotal) * 100
+    );
+    setResultPoll(optimistic);
+    setPercentForSelected(optimisticPercent);
+    setPhase("results");
 
-    const updated = await voteOnPoll(currentPoll.id, selectedSide, user.id);
-    if (updated) {
-      const newTotal = updated.votes.A + updated.votes.B || 1;
-      const percent = Math.round(
-        (updated.votes[selectedSide] / newTotal) * 100
-      );
-      setPercentForSelected(percent);
-      setResultPoll(updated);
-      setPhase("results");
+    try {
+      const updated = await voteOnPoll(currentPoll.id, selectedSide, user.id);
+      if (updated) {
+        const newTotal = updated.votes.A + updated.votes.B || 1;
+        const percent = Math.round(
+          (updated.votes[selectedSide] / newTotal) * 100
+        );
+        setResultPoll(updated);
+        setPercentForSelected(percent);
+      }
+    } catch (e) {
+      console.error("Vote failed", e);
     }
   }
 
   async function handleNext() {
-    const upcoming = await getNextOpenPollForUser(user.id);
-    setCurrentPoll(upcoming ?? null);
+    const nextFromPrefetch = prefetchedNext;
+    setPrefetchedNext(null);
+
+    setCurrentPoll(nextFromPrefetch ?? null);
     setResultPoll(null);
     setSelectedSide(null);
     setPercentForSelected(0);
     setPhase("idle");
+
+    if (!nextFromPrefetch) {
+      getNextOpenPollForUser(user.id)
+        .then((upcoming) => {
+          setCurrentPoll(upcoming ?? null);
+        })
+        .catch(() => {});
+    } else {
+      // Prefetch subsequent next in background
+      getNextOpenPollForUser(user.id)
+        .then((upcoming) => {
+          if (upcoming && upcoming.id !== nextFromPrefetch.id) {
+            setPrefetchedNext(upcoming);
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   const isResultsPhase = phase === "results";
