@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { useSaved } from "../contexts/SavedContext";
 import { ArrowLeft } from "lucide-react";
 import { ProductCard, ProductCardSkeleton, useProducts } from "@shopify/shop-minis-react";
@@ -42,35 +42,15 @@ function buildProductGid(id: string): string {
 }
 
 function SavedFit({ entry }: { entry: SavedEntry }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { root: null, rootMargin: "0px", threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   const productIds = useMemo(
     () => entry.fit.itemIds.map((id) => buildProductGid(id)),
     [entry.fit.itemIds]
   );
 
-  const { products, loading } = useProducts({ ids: isVisible ? productIds : [] });
+  const { products, loading } = useProducts({ ids: productIds });
 
   return (
-    <div ref={containerRef} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="text-sm font-medium">{entry.fit.name}</div>
@@ -79,13 +59,8 @@ function SavedFit({ entry }: { entry: SavedEntry }) {
         <div className="text-xs text-gray-500 mb-3">by {entry.authorId}</div>
 
         <div className="grid grid-cols-2 gap-2">
-          {!isVisible && (
-            <>
-              <div className="col-span-2 text-xs text-gray-500">Scroll to load products…</div>
-            </>
-          )}
-          {isVisible && loading && productIds.map((id) => <ProductCardSkeleton key={`sk-${id}`} />)}
-          {isVisible && !loading && (products ?? []).map((product) => (
+          {loading && productIds.map((id) => <ProductCardSkeleton key={`sk-${id}`} />)}
+          {!loading && (products ?? []).map((product) => (
             <ProductCard
               key={product.id}
               product={product}
