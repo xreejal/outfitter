@@ -3,7 +3,7 @@ import { usePolls } from "../contexts/PollsContext";
 import { useUser } from "../contexts/UserContext";
 import { useSaved } from "../contexts/SavedContext";
 import { useComments } from "../contexts/CommentsContext";
-import { Fit } from "../types";
+import type { Fit, Poll } from "../types";
 import ExpandModal from "../components/ExpandModal";
 import {
   ProductCard,
@@ -207,6 +207,7 @@ function FitMediaStack({
                 <div
                   key={`${String(id)}-${idx}`}
                   className="overflow-hidden rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {loading ? (
                     <ProductCardSkeleton />
@@ -227,6 +228,7 @@ function FitMediaStack({
               <div
                 key={`c-${String(id)}-${idx}`}
                 className="flex-none w-40 snap-center"
+                onClick={(e) => e.stopPropagation()}
               >
                 {loading ? (
                   <ProductCardSkeleton />
@@ -256,6 +258,7 @@ function FitMediaStack({
             <div
               key={`${String(id)}-${idx}`}
               className="rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
               {loading ? (
                 <ProductCardSkeleton />
@@ -358,12 +361,13 @@ function BattleCard({
 
   return (
     <div
+      onClick={onSelect}
       className={`
         rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
-      <div className="animate-fade-in pointer-events-none">
+      <div className="animate-fade-in">
         <FitMediaStack
           fit={fit}
           alignment={mediaAlignment}
@@ -419,12 +423,7 @@ function BattleCard({
         </button>
       </div>
 
-      {/* Full-card tap target above content but below action buttons */}
-      <button
-        onClick={onSelect}
-        className="absolute inset-0 z-10 rounded-xl"
-        aria-label={`Select fit ${side}`}
-      />
+      {/* Removed full-card overlay to allow ProductCard interactions */}
 
       <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)}>
         <div className="p-4 space-y-4">
@@ -511,6 +510,7 @@ export default function Vote({
   const [currentPoll, setCurrentPoll] = useState<
     ReturnType<typeof Object> | any
   >(null);
+  const [resultPoll, setResultPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -523,12 +523,12 @@ export default function Vote({
   // Ensure current poll syncs once providers finish loading
   useEffect(() => {
     (async () => {
-      if (!currentPoll) {
+      if (!currentPoll && phase !== "results") {
         const next = await getNextOpenPollForUser(user.id);
         setCurrentPoll(next ?? null);
       }
     })();
-  }, [currentPoll, user.id, getNextOpenPollForUser]);
+  }, [currentPoll, phase, user.id, getNextOpenPollForUser]);
 
   // When switching tabs, auto-select that side and mark phase selected
   const [activeTab, setActiveTab] = useState<"A" | "B">("A");
@@ -572,6 +572,7 @@ export default function Vote({
         (updated.votes[selectedSide] / newTotal) * 100
       );
       setPercentForSelected(percent);
+      setResultPoll(updated);
       setPhase("results");
     }
   }
@@ -579,12 +580,15 @@ export default function Vote({
   async function handleNext() {
     const upcoming = await getNextOpenPollForUser(user.id);
     setCurrentPoll(upcoming ?? null);
+    setResultPoll(null);
     setSelectedSide(null);
     setPercentForSelected(0);
     setPhase("idle");
   }
 
-  if (!currentPoll) {
+  const isResultsPhase = phase === "results";
+
+  if (!currentPoll && !isResultsPhase) {
     return (
       <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-3 pb-24">
         <HeaderRow
@@ -600,8 +604,6 @@ export default function Vote({
       </div>
     );
   }
-
-  const isResultsPhase = phase === "results";
 
   return (
     <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-2 pb-20">
@@ -624,8 +626,12 @@ export default function Vote({
         <div className="mt-2" ref={expandedRef}>
           <BattleCard
             side={selectedSide!}
-            fit={selectedSide === "A" ? currentPoll.fitA : currentPoll.fitB}
-            pollId={currentPoll.id}
+            fit={
+              selectedSide === "A"
+                ? (resultPoll ?? currentPoll).fitA
+                : (resultPoll ?? currentPoll).fitB
+            }
+            pollId={(resultPoll ?? currentPoll).id}
             mediaAlignment={selectedSide === "A" ? "left" : "right"}
             isSelected={true}
             isExpanded={true}
