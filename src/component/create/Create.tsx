@@ -46,6 +46,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [showCategoryPrompt, setShowCategoryPrompt] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   
   // Show category prompt if no gender selected
   useMemo(() => {
@@ -199,30 +200,9 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   const loadingAny = loadingSlot1 || loadingSlot2 || loadingSlot3 || loadingPopular;
   const errorAny = errorSlot1 || errorSlot2 || errorSlot3;
 
-  // Calculate how many slots to show for each option - based on selected categories
-  const getVisibleSlots = (ids: string[], isOptionA: boolean) => {
-    const filledCount = ids.filter(id => id !== "").length;
-    
-    // For the first slot, always show it
-    if (filledCount === 0) return 1;
-    
-    // For subsequent slots, only show if the previous slot is filled
-    // AND if the corresponding slot in the other option is also filled
-    const otherOptionIds = isOptionA ? fitBIds : fitAIds;
-    const otherOptionFilledCount = otherOptionIds.filter(id => id !== "").length;
-    
-    // Only show next slot if both options have the same number of filled slots
-    if (filledCount <= otherOptionFilledCount) {
-      return Math.min(filledCount + 1, selectedCategories.length); // Show filled slots + 1 empty slot, max selected categories
-    }
-    
-    // If this option is ahead, only show filled slots
-
-    return filledCount;
-  };
-
-  const visibleSlotsA = getVisibleSlots(fitAIds, true);
-  const visibleSlotsB = getVisibleSlots(fitBIds, false);
+  // Show all 3 slots from the start
+  const visibleSlotsA = 3;
+  const visibleSlotsB = 3;
 
   const canPublish = useMemo(
     () =>
@@ -284,18 +264,30 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
 
   async function publish() {
     if (!canPublish) return;
-    const fitA: Fit = {
-      id: `fit_${Date.now()}_A`,
-      name: nameA || "A",
-      itemIds: fitAIds,
-    };
-    const fitB: Fit = {
-      id: `fit_${Date.now()}_B`,
-      name: nameB || "B",
-      itemIds: fitBIds,
-    };
-    await createPoll({ description: desc, fitA, fitB }, user.id);
-    navigate("/");
+    
+    setIsPublishing(true);
+    
+    try {
+      const fitA: Fit = {
+        id: `fit_${Date.now()}_A`,
+        name: nameA || "A",
+        itemIds: fitAIds,
+      };
+      const fitB: Fit = {
+        id: `fit_${Date.now()}_B`,
+        name: nameB || "B",
+        itemIds: fitBIds,
+      };
+      await createPoll({ description: desc, fitA, fitB }, user.id);
+      
+      // Add a small delay for the animation to be visible
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (error) {
+      console.error("Failed to publish poll:", error);
+      setIsPublishing(false);
+    }
   }
 
   const handleGenderSelect = (gender: string) => {
@@ -329,28 +321,35 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     }
   };
 
-  const Slot = ({ id, onClick, isVisible, slotInfo }: { id?: string; onClick: () => void; isVisible: boolean; slotInfo: string }) => {
+  const Slot = ({ id, onClick, isVisible, slotInfo, categoryName }: { id?: string; onClick: () => void; isVisible: boolean; slotInfo: string; categoryName?: string }) => {
     const item = id ? itemById.get(id) : undefined;
     
     if (!isVisible) return null;
     
     return (
-      <button
-        onClick={onClick}
-        className="w-28 h-28 rounded-2xl glass-card border-2 border-white/30 hover:border-white/50 flex items-center justify-center overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-        title={loadingAny ? "Loading products..." : undefined}
-        data-slot={slotInfo}
-      >
-        {item ? (
-          <img
-            src={item.imageUrl}
-            alt={item.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="text-4xl text-white/70 font-bold">{loadingAny ? "…" : "+"}</span>
+      <div className="flex flex-col items-center gap-2">
+        <button
+          onClick={onClick}
+          className="w-28 h-28 rounded-2xl glass-card border-2 border-white/30 hover:border-white/50 flex items-center justify-center overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+          title={loadingAny ? "Loading products..." : undefined}
+          data-slot={slotInfo}
+        >
+          {item ? (
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-4xl text-white/70 font-bold">{loadingAny ? "…" : "+"}</span>
+          )}
+        </button>
+        {categoryName && (
+          <span className="text-xs text-white/60 text-center font-medium">
+            {categoryName}
+          </span>
         )}
-      </button>
+      </div>
     );
   };
 
@@ -490,8 +489,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
               ))}
             </div>
 
-            {/* Continue Button */}
-            <div className="mt-8">
+            {/* Fixed Footer with Continue Button */}
+            <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black border-t border-white/20 p-4 z-10">
               <Button
                 onClick={handleContinueToOutfit}
                 disabled={selectedCategories.length !== 3}
@@ -556,57 +555,84 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 items-start">
-           <div className="flex flex-col items-center gap-8">
-             {fitAIds.map((id, idx) => (
-               <Slot 
-                 key={idx} 
-                 id={id} 
-                 onClick={() => select("A", idx)} 
-                 isVisible={idx < visibleSlotsA}
-                 slotInfo={`A-${idx}`}
-               />
-             ))}
-           </div>
-           <div className="flex flex-col items-center gap-8">
-             {fitBIds.map((id, idx) => (
-               <Slot 
-                 key={idx} 
-                 id={id} 
-                 onClick={() => select("B", idx)} 
-                 isVisible={idx < visibleSlotsB}
-                 slotInfo={`B-${idx}`}
-               />
-             ))}
-           </div>
-         </div>
+                     <div className="grid grid-cols-2 gap-8 items-start">
+            <div className="flex flex-col items-center gap-4">
+              {fitAIds.map((id, idx) => (
+                <Slot 
+                  key={idx} 
+                  id={id} 
+                  onClick={() => select("A", idx)} 
+                  isVisible={idx < visibleSlotsA}
+                  slotInfo={`A-${idx}`}
+                  categoryName={selectedCategories[idx]}
+                />
+              ))}
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              {fitBIds.map((id, idx) => (
+                <Slot 
+                  key={idx} 
+                  id={id} 
+                  onClick={() => select("B", idx)} 
+                  isVisible={idx < visibleSlotsB}
+                  slotInfo={`B-${idx}`}
+                  categoryName={selectedCategories[idx]}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-      <textarea
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-        className="w-full rounded-xl glass-card text-white border border-white/20 p-4 max-h-12 mb-4 placeholder-white/50 focus:outline-none focus:border-white/40"
-        placeholder="Description"
-      />
+             <textarea
+         value={desc}
+         onChange={(e) => setDesc(e.target.value)}
+         className="w-full rounded-xl glass-card text-white border border-white/20 p-4 max-h-12 mb-20 placeholder-white/50 focus:outline-none focus:border-white/40"
+         placeholder="Description"
+       />
 
-      <Button 
-        onClick={publish} 
-        disabled={!canPublish || loadingAny}
-        className="w-full glass-card border border-white/20 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-white/10 transition-all duration-200"
-      >
-        Publish
-      </Button>
+               {/* Fixed Footer with Publish Button */}
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black border-t border-white/20 p-4 z-10">
+          <Button 
+            onClick={publish} 
+            disabled={!canPublish || loadingAny || isPublishing}
+            className="w-full glass-card border border-white/20 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-white/10 transition-all duration-200"
+          >
+            {isPublishing ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Publishing...</span>
+              </div>
+            ) : (
+              "Publish"
+            )}
+          </Button>
+        </div>
 
-      <ItemPickerModal
-        open={picker.open}
-        onClose={() => setPicker((prev) => ({ ...prev, open: false }))}
-        items={getCurrentSlotItems()}
-        onSelect={(item) => placeItem(item.id)}
-        products={getCurrentSlotProducts()}
-        fetchMore={getCurrentSlotFetchMore()}
-        hasNextPage={getCurrentSlotHasNextPage()}
-        loading={loadingAny}
-      />
-    </div>
-  );
-}
+             <ItemPickerModal
+         open={picker.open}
+         onClose={() => setPicker((prev) => ({ ...prev, open: false }))}
+         items={getCurrentSlotItems()}
+         onSelect={(item) => placeItem(item.id)}
+         products={getCurrentSlotProducts()}
+         fetchMore={getCurrentSlotFetchMore()}
+         hasNextPage={getCurrentSlotHasNextPage()}
+         loading={loadingAny}
+       />
+
+                       {/* Publishing Loading Animation */}
+        {isPublishing && (
+          <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black z-50 flex items-center justify-center">
+            <div className="text-center flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Publishing Your Poll...
+              </h3>
+              <p className="text-white/60 text-sm">
+                Taking you to home...
+              </p>
+            </div>
+          </div>
+        )}
+     </div>
+   );
+ }
