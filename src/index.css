@@ -9,107 +9,39 @@
   }
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-expand {
   animation: expand 200ms ease-out forwards;
 }
-
-@keyframes expand-to-full {
-  0% {
-    transform: scale(0.98);
-    opacity: 0.92;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+@keyframes liquidBounce {
+  0% { transform: scale(0.9) translateY(10px); opacity: 0; }
+  50% { transform: scale(1.05) translateY(-3px); opacity: 1; }
+  70% { transform: scale(0.98) translateY(1px); }
+  100% { transform: scale(1) translateY(0); }
 }
 
-.animate-expand-to-full {
-  animation: expand-to-full 320ms ease-out forwards;
-  transform-origin: center;
+@keyframes liquidFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.animate-liquidBounce {
+  animation: liquidBounce 0.6s cubic-bezier(.34,1.56,.64,1) both,
+             liquidFloat 3s ease-in-out infinite;
 }
 
-.animate-fade-in {
-  animation: fade-in 220ms ease-out both;
+.animate-liquidBounceSlow {
+  animation: liquidBounce 0.8s cubic-bezier(.34,1.56,.64,1) both,
+             liquidFloat 4s ease-in-out infinite;
 }
 
-@keyframes slide-out-up {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-12%);
-    opacity: 0;
-  }
-}
-@keyframes slide-out-down {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(12%);
-    opacity: 0;
-  }
-}
-@keyframes slide-in-up {
-  from {
-    transform: translateY(8%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-@keyframes slide-in-down {
-  from {
-    transform: translateY(-8%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-out-up {
-  animation: slide-out-up 280ms ease-in forwards;
-}
-.animate-slide-out-down {
-  animation: slide-out-down 280ms ease-in forwards;
-}
-.animate-slide-in-up {
-  animation: slide-in-up 260ms ease-out both;
-}
-.animate-slide-in-down {
-  animation: slide-in-down 260ms ease-out both;
-}
-
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .animate-expand-to-full {
-    animation: none;
-  }
-  .animate-fade-in {
-    animation: none;
-  }
-  .animate-slide-out-up,
-  .animate-slide-out-down,
-  .animate-slide-in-up,
-  .animate-slide-in-down {
-    animation: none;
-  }
-}
