@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "@shopify/shop-minis-react": "0.0.30",
-    "@supabase/supabase-js": "^2.45.4",
-    "dotenv": "^17.2.1",
+    "@supabase/supabase-js": "^2.54.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   }
