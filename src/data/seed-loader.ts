@@ -23,7 +23,9 @@ export async function ensureSeedsLoaded(): Promise<void> {
     }))
   }
   if (!localStorage.getItem(SAVED_KEY)) {
-    localStorage.setItem(SAVED_KEY, JSON.stringify({ savedFits: [] }))
+    loaders.push(fetch('/data/saved.json').then(r => r.json()).then(data => {
+      localStorage.setItem(SAVED_KEY, JSON.stringify(data))
+    }))
   }
   if (!localStorage.getItem(USER_KEY)) {
     localStorage.setItem(USER_KEY, JSON.stringify({ id: 'user_local' }))
