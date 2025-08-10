@@ -42,8 +42,8 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
     if (open) firstFocusable.current?.focus();
   }, [open]);
 
-  const handleFavoriteToggled = (isFavorited: boolean) => {
-    console.log('Favorite toggled:', isFavorited);
+  const handleFavoriteToggled = () => {
+    // console.log('Favorite toggled');
   };
 
   const handleProductClick = (e: React.MouseEvent, product: any) => {
