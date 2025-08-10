@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import { usePolls } from "../contexts/PollsContext";
 import { useUser } from "../contexts/UserContext";
