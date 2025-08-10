@@ -52,6 +52,15 @@ CREATE TABLE IF NOT EXISTS public.fit_comments (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create saved_fits table to track user's saved fits
+CREATE TABLE IF NOT EXISTS public.saved_fits (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id TEXT NOT NULL, -- Using text for now, can be UUID later
+    fit_id UUID NOT NULL REFERENCES public.fits(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, fit_id) -- One save per user per fit
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_published_battles_fit_a ON public.published_battles(fit_a_id);
 CREATE INDEX IF NOT EXISTS idx_published_battles_fit_b ON public.published_battles(fit_b_id);
@@ -62,6 +71,9 @@ CREATE INDEX IF NOT EXISTS idx_votes_battle_user ON public.votes(battle_id, user
 CREATE INDEX IF NOT EXISTS idx_votes_chosen_fit ON public.votes(chosen_fit_id);
 CREATE INDEX IF NOT EXISTS idx_fit_comments_fit ON public.fit_comments(fit_id);
 CREATE INDEX IF NOT EXISTS idx_fit_comments_created ON public.fit_comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_saved_fits_user ON public.saved_fits(user_id);
+CREATE INDEX IF NOT EXISTS idx_saved_fits_fit ON public.saved_fits(fit_id);
+CREATE INDEX IF NOT EXISTS idx_saved_fits_created ON public.saved_fits(created_at DESC);
 
 -- Create trigger function to update vote counts
 CREATE OR REPLACE FUNCTION update_battle_vote_counts()
@@ -147,12 +159,14 @@ ALTER TABLE public.fits DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.published_battles DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.votes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fit_comments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.saved_fits DISABLE ROW LEVEL SECURITY;
 
 -- Grant necessary permissions
 GRANT ALL ON public.fits TO anon, authenticated;
 GRANT ALL ON public.published_battles TO anon, authenticated;
 GRANT ALL ON public.votes TO anon, authenticated;
 GRANT ALL ON public.fit_comments TO anon, authenticated;
+GRANT ALL ON public.saved_fits TO anon, authenticated;
 
 -- Grant usage on sequences (if any auto-increment columns are added later)
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;

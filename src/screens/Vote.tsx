@@ -380,20 +380,25 @@ function BattleCard({
         className={`absolute ${actionRowPosition} z-20 flex items-center gap-2`}
       >
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            toggleSave(pollId, fit.id, side);
+            await toggleSave(pollId, fit.id, side);
           }}
-          className="h-10 w-10 grid place-items-center text-zinc-100 active:scale-95 transition-transform"
-          aria-label="Save fit"
+          className={`h-10 w-10 grid place-items-center active:scale-95 transition-all duration-200 rounded-full ${
+            saved 
+              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25" 
+              : "text-zinc-100 hover:bg-white/10"
+          }`}
+          aria-label={saved ? "Unsave fit" : "Save fit"}
         >
           <svg
             width="20"
             height="20"
             viewBox="0 0 16 16"
             fill={saved ? "currentColor" : "none"}
-            stroke="white"
+            stroke="currentColor"
             strokeWidth="1.6"
+            className="transition-all duration-200"
           >
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
@@ -654,7 +659,32 @@ export default function Vote({
 
   return (
     <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-2 pb-20">
-      {/* extra top padding */}
+      {/* Poll Description Header */}
+      <div className="flex items-center justify-between py-3 px-1">
+        <button
+          onClick={() => navigate?.("/")}
+          className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
+          aria-label="Go back"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path
+              d="M10 12L6 8l4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <div className="flex-1 text-center">
+          <h2 className="text-white text-lg font-medium">
+            {currentPoll?.description || "Vote on this outfit"}
+          </h2>
+        </div>
+        <div className="size-10" /> {/* Spacer for centering */}
+      </div>
+      
       {!isResultsPhase ? (
         <>
           <div className="mt-2">
@@ -670,7 +700,34 @@ export default function Vote({
           </div>
         </>
       ) : (
-        <div className="mt-2" ref={expandedRef}>
+        <>
+          {/* Poll Description Header for Results */}
+          <div className="flex items-center justify-between py-3 px-1">
+            <button
+              onClick={() => navigate?.("/")}
+              className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
+              aria-label="Go back"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M10 12L6 8l4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <div className="flex-1 text-center">
+              <h2 className="text-white text-lg font-medium">
+                {(resultPoll ?? currentPoll)?.description || "Vote on this outfit"}
+              </h2>
+            </div>
+            <div className="size-10" /> {/* Spacer for centering */}
+          </div>
+          
+          <div className="mt-2" ref={expandedRef}>
           <BattleCard
             side={selectedSide!}
             fit={
@@ -684,7 +741,8 @@ export default function Vote({
             isExpanded={true}
             onSelect={() => {}}
           />
-        </div>
+          </div>
+        </>
       )}
 
       {!isResultsPhase && (
