@@ -9,8 +9,8 @@ function FabMenu({ navigate }: { navigate: (path: string) => void }) {
   };
 
   const menuItems = [
-    { label: "Choose Fits", action: () => navigate("/vote") },
-    { label: "Vote on Outfits", action: () => console.log("Vote clicked"), disabled: false },
+    { label: "Choose Fits", action: () => navigate("/create") },
+    { label: "Vote on Outfits", action: () => navigate("/vote"), disabled: false },
   ];
 
   return (
