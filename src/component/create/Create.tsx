@@ -295,8 +295,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       itemIds: fitBIds,
     };
     await createPoll({ description: desc, fitA, fitB }, user.id);
-    alert("Published!");
-    navigate("/vote");
+    navigate("/");
   }
 
   const handleGenderSelect = (gender: string) => {
@@ -338,7 +337,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     return (
       <button
         onClick={onClick}
-        className="w-28 h-28 rounded-2xl border-3 border-white hover:border-blue-400 flex items-center justify-center overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+        className="w-28 h-28 rounded-2xl glass-card border-2 border-white/30 hover:border-white/50 flex items-center justify-center overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
         title={loadingAny ? "Loading products..." : undefined}
         data-slot={slotInfo}
       >
@@ -349,7 +348,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-4xl text-white font-bold">{loadingAny ? "…" : "+"}</span>
+          <span className="text-4xl text-white/70 font-bold">{loadingAny ? "…" : "+"}</span>
         )}
       </button>
     );
@@ -379,19 +378,22 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   // Category selection prompt
   if (showCategoryPrompt) {
     return (
-      <div className="min-h-screen bg-black text-white pt-4 pb-28 px-5">
-        <div className="mb-6 flex flex-col items-center">
-          <Button onClick={() => navigate("/")} className="text-white text-2xl mb-4 bg-transparent">
-            ← 
-          </Button>
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen pt-4 pb-28 px-5">
+        <div className="flex items-center mb-3">
+          <button
+            onClick={() => navigate?.("/")}
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          >
+            ←
+          </button>
         </div>
         
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-3">Select your style</h2>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
+          <p className="text-white/70 text-lg leading-relaxed max-w-sm mx-auto">
             Choose exactly 3 categories.
           </p>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
+          <p className="text-white/70 text-lg leading-relaxed max-w-sm mx-auto">
             Each category will become a slot in your outfit!
           </p>
         </div>
@@ -403,13 +405,13 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
             <div className="grid grid-cols-2 gap-4">
               <button 
                 onClick={() => handleGenderSelect('men')}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                className="glass-card border border-white/20 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/10 transition-all duration-200 transform hover:scale-105"
               >
                 Men's
               </button>
               <button 
                 onClick={() => handleGenderSelect('women')}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                className="glass-card border border-white/20 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/10 transition-all duration-200 transform hover:scale-105"
               >
                 Women's
               </button>
@@ -424,25 +426,25 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
               <h3 className="text-xl font-semibold text-white">
                 {selectedGender === 'men' ? "Men's" : "Women's"} Categories
               </h3>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-white/60">
                 {selectedCategories.length}/3 selected
               </div>
             </div>
 
             {/* Selected Categories Display */}
             {selectedCategories.length > 0 && (
-              <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-                <div className="text-sm text-gray-300 mb-2">Selected:</div>
+              <div className="mb-4 p-3 glass-card border border-white/20 rounded-lg">
+                <div className="text-sm text-white/70 mb-2">Selected:</div>
                 <div className="flex flex-wrap gap-2">
                   {selectedCategories.map((category, index) => (
                     <span 
                       key={index}
-                      className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                      className="glass-card border border-white/30 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2"
                     >
                       {category}
                       <button 
                         onClick={() => handleSubcategorySelect(category)}
-                        className="text-white hover:text-red-300"
+                        className="text-white hover:text-red-400"
                       >
                         ×
                       </button>
@@ -455,13 +457,13 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
             {/* Category Accordion */}
             <div className="space-y-2">
               {Object.entries(CATEGORIES[selectedGender as keyof typeof CATEGORIES]).map(([mainCategory, subcategories]) => (
-                <div key={mainCategory} className="bg-gray-800 rounded-lg overflow-hidden">
+                <div key={mainCategory} className="glass-card border border-white/20 rounded-lg overflow-hidden">
                   <button
                     onClick={() => toggleCategoryExpansion(mainCategory)}
-                    className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors"
+                    className="w-full p-4 text-left flex items-center justify-between hover:bg-white/10 transition-colors"
                   >
                     <span className="font-medium text-white">{mainCategory}</span>
-                    <span className="text-gray-400">
+                    <span className="text-white/60">
                       {expandedCategories.includes(mainCategory) ? '−' : '+'}
                     </span>
                   </button>
@@ -474,8 +476,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
                           onClick={() => handleSubcategorySelect(subcategory)}
                           className={`w-full text-left p-2 rounded transition-colors ${
                             selectedCategories.includes(subcategory)
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-300 hover:bg-gray-700'
+                              ? 'glass-card border border-white/30 text-white'
+                              : 'text-white/70 hover:bg-white/10'
                           }`}
                           disabled={!selectedCategories.includes(subcategory) && selectedCategories.length >= 3}
                         >
@@ -495,8 +497,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
                 disabled={selectedCategories.length !== 3}
                 className={`w-full font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
                   selectedCategories.length === 3
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    ? 'glass-card border border-white/20 text-white hover:bg-white/10'
+                    : 'glass-card border border-white/10 text-white/40 cursor-not-allowed'
                 }`}
               >
                 {selectedCategories.length === 3 
@@ -512,18 +514,21 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   }
 
   return (
-    <div className="fixed inset-0 bg-black text-white pt-4 pb-28 px-5 overflow-y-auto">  
-      <div className="mb-3 flex flex-col items-center">
-        <Button onClick={() => navigate("/")} className="text-white text-2xl bg-transparent">
-          ← 
-        </Button>
-      </div>
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white pt-4 pb-28 px-5 overflow-y-auto">  
+      <div className="flex items-center mb-3">
+          <button
+            onClick={() => navigate?.("/")}
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          >
+            ←
+          </button>
+        </div>
       <div className="w-full mb-1">
         <h2 className="text-2xl font-bold text-center text-white">Create your poll</h2>
       </div>
 
       {loadingAny && (
-        <div className="mb-3 text-center text-sm text-gray-300">
+        <div className="mb-3 text-center text-sm text-white/70">
           Searching for products…
         </div>
       )}
@@ -534,13 +539,13 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       )}
       
              {selectedCategories.length > 0 && (
-         <div className="mb-3 text-center text-sm text-blue-400">
+         <div className="mb-3 text-center text-sm text-white/80">
            Building outfit with: {selectedCategories.join(", ")}
          </div>
        )}
 
                {/* Outfit Selection Container */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="glass-card border border-white/20 rounded-xl p-6 mb-6">
           {/* Outfit Labels */}
           <div className="grid grid-cols-2 gap-8 mb-4">
             <div className="text-center">
@@ -580,14 +585,14 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        className="w-full rounded-xl bg-gray-800 text-white border border-gray-600 p-4 max-h-12 mb-4 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+        className="w-full rounded-xl glass-card text-white border border-white/20 p-4 max-h-12 mb-4 placeholder-white/50 focus:outline-none focus:border-white/40"
         placeholder="Description"
       />
 
       <Button 
         onClick={publish} 
         disabled={!canPublish || loadingAny}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+        className="w-full glass-card border border-white/20 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-white/10 transition-all duration-200"
       >
         Publish
       </Button>

@@ -116,24 +116,34 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
       />
 
       {/* Panel */}
-      <div className="absolute inset-0 bg-white flex flex-col z-10 transform transition-all duration-500 ease-in-out animate-in slide-in-from-bottom-full">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col z-10 transform transition-all duration-500 ease-in-out animate-in slide-in-from-bottom-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-          <div className="flex-1"></div>
+        {/* <div className="flex items-center justify-between p-4 border-b border-white/20 glass-card">
           <Button
             ref={firstFocusable as any}
             onClick={onClose}
-            className="text-black bg-transparent hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-4xl"
+            className="text-white glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg font-bold text-lg"
             aria-label="Close item picker"
           >
             ✕
           </Button>
+          <div className="flex-1"></div>
+        </div> */}
+        <div className="flex items-center ml-4 mt-4">
+          <button
+            ref={firstFocusable as any}
+            onClick={onClose}
+            aria-label="Close item picker"
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          >
+            ←
+          </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 pb-8">
           {(!products || products.length === 0) && items.length === 0 ? (
-            <div className="text-center text-sm text-gray-500 mt-8">No items yet—still loading?</div>
+            <div className="text-center text-sm text-white/60 mt-8">No items yet—still loading?</div>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3">
@@ -141,19 +151,19 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                   products.map((product) => (
                     <div
                       key={product.id}
-                      className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+                      className="product-card glass-card border border-white/20 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
                     >
-                      <div onClick={(e: React.MouseEvent<HTMLDivElement>) => handleProductClick(e, product)}>
+                      <div onClick={(e: React.MouseEvent<HTMLDivElement>) => handleProductClick(e, product)} className="[&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
                         <ProductCard 
                           product={product}
                           onFavoriteToggled={handleFavoriteToggled}
                         />
                       </div>
-                      <div className="p-2 border-t border-gray-100">
+                      <div className="p-2 border-t border-white/10">
                         <Button 
                           onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleProductClick(e, product)}
                           size="sm"
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+                          className="w-full glass-card border border-white/20 hover:bg-white/10 text-white font-medium py-2"
                         >
                           Select
                         </Button>
@@ -164,7 +174,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                   items.map((item) => (
                     <div
                       key={item.id}
-                      className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+                      className="product-card glass-card border border-white/20 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
                     >
                       <div className="p-3">
                         <div className="w-full h-28 overflow-hidden mb-2">
@@ -174,12 +184,12 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="text-sm font-medium line-clamp-2">{item.title}</div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-sm font-medium line-clamp-2 text-white">{item.title}</div>
+                        <div className="text-xs text-white/60 mt-1">
                           {item.price && `$${item.price}`}
                         </div>
                       </div>
-                      <div className="p-2 border-t border-gray-100">
+                      <div className="p-2 border-t border-white/10">
                         <Button 
                           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             e.preventDefault();
@@ -218,7 +228,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                             }, 50);
                           }}
                           size="sm"
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+                          className="w-full glass-card border border-white/20 hover:bg-white/10 text-white font-medium py-2"
                         >
                           Select
                         </Button>
@@ -232,7 +242,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                   <Button
                     onClick={fetchMore}
                     disabled={loading}
-                    className="w-full bg-transparent hover:bg-blue-700 text-black font-bold py-3 transition-all duration-200"
+                    className="w-full glass-card border border-white/20 hover:bg-white/10 text-white font-bold py-3 transition-all duration-200"
                   >
                     {loading ? "Loading..." : "Show 10 More"}
                   </Button>

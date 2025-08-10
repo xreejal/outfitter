@@ -20,7 +20,7 @@ export default function FitCard({
 
   return (
     <div
-      className={`relative rounded-xl bg-gray-100 p-3 ${selected ? "ring-2 ring-blue-500" : ""}`}
+      className={`relative rounded-xl bg-gray-100 p-3 ${selected ? "ring-2 ring-gray-600" : ""}`}
     >
       <button
         onClick={() => onSelect?.()}
@@ -53,7 +53,7 @@ export default function FitCard({
             e.stopPropagation();
             toggleSave(pollId, fit.id, fit.name === "A" ? "A" : "B");
           }}
-          className={`text-sm ${saved ? "text-blue-600" : "text-gray-600"}`}
+          className={`text-sm ${saved ? "text-gray-800" : "text-gray-600"}`}
         >
           {saved ? "Saved" : "Save"}
         </button>

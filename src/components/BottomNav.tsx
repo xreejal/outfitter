@@ -18,7 +18,7 @@ export default function BottomNav({ route, navigate }: Props) {
   }) => (
     <button
       onClick={() => navigate(path)}
-      className={`flex flex-col items-center justify-center flex-1 py-3 ${route === path ? "text-blue-600" : "text-gray-600"}`}
+      className={`flex flex-col items-center justify-center flex-1 py-3 ${route === path ? "text-gray-800" : "text-gray-600"}`}
     >
       {Icon ? <Icon size={20} /> : <div className="bg-current rounded-full w-5 h-5" />}
       <span className="mt-1 text-xs">{label}</span>

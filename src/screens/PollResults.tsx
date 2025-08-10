@@ -1,6 +1,5 @@
 import { useMemo, useEffect, useState } from "react";
 import { usePolls } from "../contexts/PollsContext";
-import { ArrowLeft } from "lucide-react";
 import {
   ProductCard,
   ProductCardSkeleton,
@@ -27,16 +26,20 @@ export default function PollResults({
 
   if (!poll) {
     return (
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate?.("/recents")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <h2 className="text-xl font-semibold w-full text-center">
-          Poll Not Found.
-        </h2>
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen pt-6 pb-28 px-4">
+        <div className="mb-6">
+          <div className="flex items-center mb-3">
+            <button
+              onClick={() => navigate?.("/recents")}
+              className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+            >
+              ←
+            </button>
+          </div>
+          <h2 className="text-xl font-semibold text-center">
+            Poll Not Found.
+          </h2>
+        </div>
       </div>
     );
   }
@@ -73,41 +76,43 @@ export default function PollResults({
   });
 
   return (
-    <div className="pt-6 pb-28 px-4">
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate?.("/recents")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <h2 className="text-xl font-semibold w-full text-center">
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen pt-6 pb-28 px-4">
+      <div className="mb-6">
+        <div className="flex items-center mb-3">
+          <button
+            onClick={() => navigate?.("/recents")}
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          >
+            ←
+          </button>
+        </div>
+        <h2 className="text-xl font-semibold text-center">
           {poll.description}
         </h2>
       </div>
 
       <div className="mb-4">
-        <div className="text-sm text-gray-600 flex justify-between">
+        <div className="text-sm text-white/70 flex justify-between">
           <span>Total votes: {total}</span>
           <span>Created: {new Date(poll.createdAt).toLocaleDateString()}</span>
         </div>
       </div>
 
       {/* Single percentage bar */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+      <div className="glass-card border border-white/20 p-4 mb-6">
         <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium text-white">
             {poll.fitA.name}: {aPct}%
           </span>
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium text-white">
             {poll.fitB.name}: {bPct}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden relative">
+        <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden relative">
           <div className="h-full relative">
             {/* Left bar (blue) - grows from left */}
             <div
-              className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-1000 ease-out"
+              className="absolute left-0 top-0 h-full bg-gray-600 transition-all duration-1000 ease-out"
               style={{
                 width: `${animatedAPct}%`,
                 transformOrigin: "left",
@@ -131,7 +136,7 @@ export default function PollResults({
             }}
           />
         </div>
-        <div className="flex justify-between mt-2 text-xs text-gray-500">
+        <div className="flex justify-between mt-2 text-xs text-white/60">
           <span>{poll.votes.A} votes</span>
           <span>{poll.votes.B} votes</span>
         </div>
@@ -139,10 +144,10 @@ export default function PollResults({
 
       <div className="space-y-6">
         {/* Option A */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="glass-card border border-white/20 overflow-hidden">
           <div className="p-4">
-            <h4 className="font-medium mb-4">{poll.fitA.name}</h4>
-            <div className="grid grid-cols-2 gap-2">
+            <h4 className="font-medium mb-4 text-white">{poll.fitA.name}</h4>
+            <div className="grid grid-cols-2 gap-2 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
               {loadingA &&
                 productIdsA.map((id) => (
                   <ProductCardSkeleton key={`sk-${id}`} />
@@ -162,10 +167,10 @@ export default function PollResults({
         </div>
 
         {/* Option B */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="glass-card border border-white/20 overflow-hidden">
           <div className="p-4">
-            <h4 className="font-medium mb-4">{poll.fitB.name}</h4>
-            <div className="grid grid-cols-2 gap-2">
+            <h4 className="font-medium mb-4 text-white">{poll.fitB.name}</h4>
+            <div className="grid grid-cols-2 gap-2 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
               {loadingB &&
                 productIdsB.map((id) => (
                   <ProductCardSkeleton key={`sk-${id}`} />

@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { ArrowLeft, Clock, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Clock, Eye, EyeOff, Sparkles } from "lucide-react";
 import { usePolls } from "../contexts/PollsContext";
 import { useUser } from "../contexts/UserContext";
 
@@ -61,15 +61,17 @@ export default function Recents({
   );
 
   return (
-    <div className="pt-6 pb-28 px-4 bg-black text-white min-h-screen">
-      <div className="flex items-center mb-6">
-        <button
-          onClick={() => navigate?.("/")}
-          className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 transition-colors absolute left-4 z-10"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <h2 className="text-xl font-semibold w-full text-center">Recent Polls</h2>
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen pt-6 pb-28 px-4">
+      <div className="mb-6">
+        <div className="flex items-center mb-3">
+          <button
+            onClick={() => navigate?.("/")}
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          >
+            ←
+          </button>
+        </div>
+        <h2 className="text-xl font-semibold text-center">Recent Polls</h2>
       </div>
       <div className="flex flex-col gap-4">
         {mine.map((p) => {
@@ -91,45 +93,45 @@ export default function Recents({
           return (
             <div
               key={p.id}
-              className={`rounded-xl p-4 transition-all duration-500 ${
+              className={`rounded-xl p-4 transition-all duration-500 glass-card ${
                 isUnlocking 
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-yellow-400 shadow-2xl scale-105' 
                   : isLocked 
-                    ? 'bg-gray-800 border border-gray-700 hover:bg-gray-750' 
-                    : 'bg-gray-800 border border-blue-500 hover:bg-gray-750'
+                    ? 'border border-white/10' 
+                    : 'border border-gray-400/30'
               }`}
             >
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold text-lg text-white">{p.description}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-white/60">
                   {new Date(p.createdAt).toLocaleDateString()}
                 </span>
               </div>
               
               {isLocked ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-gray-400">
+                  <div className="flex items-center gap-2 text-white/60">
                     <EyeOff size={16} />
                     <span className="text-sm">Results hidden</span>
                   </div>
-                  <div className="flex items-center gap-2 text-blue-400">
+                  <div className="flex items-center gap-2 text-gray-400">
                     <Clock size={16} className="animate-pulse" />
                     <span className="text-sm font-medium font-mono">
                       Unlocks in {timeRemaining}
                     </span>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
+                  <div className="glass-card p-3 border border-white/10">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold">?</span>
+                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white/70">?</span>
                         </div>
-                        <span className="text-gray-400">vs</span>
-                        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold">?</span>
+                        <span className="text-white/60">vs</span>
+                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white/70">?</span>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-white/50">
                         Mystery results...
                       </div>
                     </div>
@@ -151,12 +153,12 @@ export default function Recents({
                     )}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-300">
+                    <span className="text-sm text-white/80">
                       {p.fitA.name} vs {p.fitB.name}
                     </span>
                     <button
                       onClick={() => navigate?.(`/poll-results/${p.id}`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-lg transition-colors"
+                      className="glass-card px-3 py-1 text-xs text-white hover:bg-white/10 transition-colors border border-white/20"
                     >
                       View Results
                     </button>
@@ -167,10 +169,10 @@ export default function Recents({
           );
         })}
         {mine.length === 0 && (
-          <div className="text-center text-gray-400 py-8">
+          <div className="text-center text-white/70 py-8">
             <div className="text-2xl mb-2">🔍</div>
             <div className="text-sm">No polls created yet.</div>
-            <div className="text-xs text-gray-500 mt-1">Create your first poll to see it here!</div>
+            <div className="text-xs text-white/50 mt-1">Create your first poll to see it here!</div>
           </div>
         )}
       </div>

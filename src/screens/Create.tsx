@@ -66,8 +66,7 @@ export default function Create({
       itemIds: fitBIds,
     };
     await createPoll({ description: desc, fitA, fitB }, user.id);
-    alert("Published!");
-    navigate("/vote");
+    navigate("/");
   }
 
   const Slot = ({ id, onClick }: { id?: string; onClick: () => void }) => {
@@ -92,10 +91,10 @@ export default function Create({
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black px-5 pt-4 pb-28 min-h-screen">
-      <div className="flex flex-col items-center mb-6">
+      <div className="flex items-start mb-6">
         <Button
           onClick={() => navigate("/")}
-          className="mb-4 rounded-full w-12 h-12 text-white text-2xl hover:scale-110 transition-transform duration-200 glass-card"
+          className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
         >
           ←
         </Button>

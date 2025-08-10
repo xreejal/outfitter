@@ -69,7 +69,7 @@ function BottomActionBar({
       <button
         onClick={onBack}
         aria-label="Go back"
-        className="size-12 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
+        className="size-12 rounded-full glass-card text-white grid place-items-center border border-white/20"
       >
         <BackIcon />
       </button>
@@ -80,20 +80,20 @@ function BottomActionBar({
           <button
             disabled={!canSubmit}
             onClick={onSubmit}
-            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "bg-emerald-500 text-white active:bg-emerald-600" : "bg-zinc-700 text-zinc-400"}`}
+            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "glass-card text-white border border-white/20 hover:bg-white/10 active:bg-white/20" : "glass-card text-white/40 border border-white/10"}`}
           >
             Submit
           </button>
         ) : (
           <div className="relative animate-fade-in">
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-center text-xs text-zinc-300 whitespace-nowrap">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-center text-xs text-white/80 whitespace-nowrap">
               {isMajority
                 ? "You were in the majority"
                 : "You were not in the majority"}
             </div>
-            <div className="rounded-full bg-zinc-800 h-12 relative overflow-hidden">
+            <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-gray-600 transition-all duration-500"
                 style={{ width: `${animatedWidth}%` }}
               />
               {/* Percentage pill to the right of the green bar */}
@@ -105,7 +105,7 @@ function BottomActionBar({
                   transform: "translate(-100%, -50%)",
                 }}
               >
-                <span className="px-2 py-0.5 rounded-full bg-zinc-700 text-white text-xs font-medium">
+                <span className="px-2 py-0.5 rounded-full glass-card border border-white/20 text-white text-xs font-medium">
                   {percent}%
                 </span>
               </div>
@@ -118,7 +118,7 @@ function BottomActionBar({
       {isResults ? (
         <button
           onClick={onNext}
-          className="h-12 w-16 rounded-xl bg-emerald-500 text-white font-medium active:bg-emerald-600"
+          className="h-12 w-16 rounded-xl glass-card text-white font-medium border border-white/20 hover:bg-white/10 active:bg-white/20"
         >
           Next
         </button>
@@ -139,29 +139,21 @@ function HeaderRow({
   onCategoryChange: (category: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 pt-2 pb-2">
-      {/* added vertical padding */}
-      <button
-        onClick={() => navigate?.("/")}
-        className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
-        aria-label="Go back"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path
-            d="M10 12L6 8l4-4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      <div className="rounded-full bg-zinc-800 text-zinc-100 h-11 px-4 flex-1 flex items-center">
+    <div className="pt-2 pb-2">
+      <div className="flex items-center mb-3">
+        <button
+          onClick={() => navigate?.("/")}
+          className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+          aria-label="Go back"
+        >
+          ←
+        </button>
+      </div>
+      <div className="rounded-full glass-card text-white h-11 px-4 flex-1 flex items-center border border-white/20">
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="bg-transparent text-zinc-100 w-full outline-none"
+          className="bg-transparent text-white w-full outline-none"
         >
           <option value="all">All categories</option>
           <option value="streetwear">Streetwear</option>
@@ -293,8 +285,8 @@ function FitSelectors({
         aria-pressed={isActive}
         className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-300 ${
           isActive
-            ? "bg-emerald-600 text-white opacity-100"
-            : "bg-zinc-800/70 text-zinc-300 opacity-90"
+            ? "bg-gray-700 text-white opacity-100"
+            : "glass-card text-white/80 opacity-90 border border-white/20"
         }`}
       >
         {`Fit ${side}`}
@@ -363,7 +355,7 @@ function BattleCard({
     <div
       onClick={onSelect}
       className={`
-        rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
+        rounded-xl glass-card border border-white/20 p-3 relative transition-all duration-300 ${isExpanded ? "h-[75dvh]" : "h-[68dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
@@ -386,8 +378,8 @@ function BattleCard({
           }}
           className={`h-10 w-10 grid place-items-center active:scale-95 transition-all duration-200 rounded-full ${
             saved 
-              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25" 
-              : "text-zinc-100 hover:bg-white/10"
+              ? "bg-gray-600 text-white shadow-lg shadow-gray-600/25" 
+              : "text-white hover:bg-white/10 glass-card border border-white/20"
           }`}
           aria-label={saved ? "Unsave fit" : "Save fit"}
         >
@@ -408,7 +400,7 @@ function BattleCard({
             e.stopPropagation();
             setExpandOpen(true);
           }}
-          className="h-10 w-10 grid place-items-center text-zinc-100 active:scale-95 transition-transform"
+          className="h-10 w-10 grid place-items-center text-white active:scale-95 transition-transform glass-card border border-white/20"
           aria-label="Expand fit"
         >
           <svg
@@ -437,25 +429,25 @@ function BattleCard({
             {comments.map((c) => (
               <div
                 key={c.id}
-                className="text-sm text-zinc-200 bg-zinc-800/50 rounded-lg p-2"
+                className="text-sm text-white glass-card border border-white/20 rounded-lg p-2"
               >
                 {c.body}
               </div>
             ))}
             {comments.length === 0 && (
-              <div className="text-sm text-zinc-400">No comments yet.</div>
+              <div className="text-sm text-white/70">No comments yet.</div>
             )}
           </div>
           <div className="flex gap-2">
             <input
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 bg-zinc-800 text-white rounded-lg px-3 py-2 outline-none"
+              className="flex-1 glass-card text-white rounded-lg px-3 py-2 outline-none border border-white/20"
               placeholder="Add a comment"
             />
             <button
               onClick={submitComment}
-              className="px-3 py-2 rounded-lg bg-emerald-600 text-white"
+              className="px-3 py-2 rounded-lg bg-gray-700 text-white"
             >
               Post
             </button>
@@ -479,9 +471,9 @@ function VersusBadge() {
 function ResultsPercentBar({ percent }: { percent: number }) {
   return (
     <div className="flex-1 max-w-[70%]">
-      <div className="rounded-full bg-zinc-800 h-12 relative overflow-hidden">
+      <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
         <div
-          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+          className="h-full rounded-full bg-gray-600 transition-all duration-500"
           style={{ width: `${percent}%` }}
         />
         <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
@@ -642,14 +634,14 @@ export default function Vote({
 
   if (!currentPoll && !isResultsPhase) {
     return (
-      <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-3 pb-24">
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-3 pb-24">
         <HeaderRow
           navigate={navigate}
           category="all"
           onCategoryChange={(category) => {}}
         />
         <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-zinc-400 text-center">
+          <p className="text-white/70 text-center">
             No open battles. Create one!
           </p>
         </div>
@@ -658,31 +650,23 @@ export default function Vote({
   }
 
   return (
-    <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-2 pb-20">
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-2 pb-32">
       {/* Poll Description Header */}
-      <div className="flex items-center justify-between py-3 px-1">
-        <button
-          onClick={() => navigate?.("/")}
-          className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
-          aria-label="Go back"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path
-              d="M10 12L6 8l4-4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <div className="flex-1 text-center">
+      <div className="py-3 px-1">
+        <div className="flex items-center mb-3">
+          <button
+            onClick={() => navigate?.("/")}
+            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+            aria-label="Go back"
+          >
+            ←
+          </button>
+        </div>
+        <div className="text-center">
           <h2 className="text-white text-lg font-medium">
             {currentPoll?.description || "Vote on this outfit"}
           </h2>
         </div>
-        <div className="size-10" /> {/* Spacer for centering */}
       </div>
       
       {!isResultsPhase ? (
@@ -702,29 +686,21 @@ export default function Vote({
       ) : (
         <>
           {/* Poll Description Header for Results */}
-          <div className="flex items-center justify-between py-3 px-1">
-            <button
-              onClick={() => navigate?.("/")}
-              className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
-              aria-label="Go back"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path
-                  d="M10 12L6 8l4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <div className="flex-1 text-center">
+          <div className="py-3 px-1">
+            <div className="flex items-center mb-3">
+              <button
+                onClick={() => navigate?.("/")}
+                className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+                aria-label="Go back"
+              >
+                ←
+              </button>
+            </div>
+            <div className="text-center">
               <h2 className="text-white text-lg font-medium">
                 {(resultPoll ?? currentPoll)?.description || "Vote on this outfit"}
               </h2>
             </div>
-            <div className="size-10" /> {/* Spacer for centering */}
           </div>
           
           <div className="mt-2" ref={expandedRef}>
