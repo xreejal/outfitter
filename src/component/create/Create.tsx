@@ -7,6 +7,7 @@ import {
   Button,
   useProductSearch,
   usePopularProducts,
+  useBuyerAttributes,
 } from "@shopify/shop-minis-react";
 
 export default function Create({
@@ -17,46 +18,76 @@ export default function Create({
   const { createPoll } = usePolls();
   const user = useUser();
 
-  // Search for products by category keywords
+  // Get buyer attributes for gender-based personalization
+  const { buyerAttributes, loading: loadingAttributes } = useBuyerAttributes();
+
+  // Manual gender selection state
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [showGenderPrompt, setShowGenderPrompt] = useState(false);
+
+  // Determine the effective gender (from attributes or manual selection)
+  const effectiveGender = buyerAttributes?.genderAffinity || selectedGender;
+
+  // Show gender prompt if no attributes and no manual selection
+  useMemo(() => {
+    if (
+      !loadingAttributes &&
+      !buyerAttributes?.genderAffinity &&
+      !selectedGender
+    ) {
+      setShowGenderPrompt(true);
+    }
+  }, [loadingAttributes, buyerAttributes?.genderAffinity, selectedGender]);
+
+  // Determine gender-specific search terms
+  const getGenderSpecificQuery = (baseQuery: string) => {
+    if (!effectiveGender) return baseQuery;
+
+    const gender = effectiveGender.toLowerCase();
+
+    switch (gender) {
+      case "male":
+      case "men":
+        return `${baseQuery} men male`;
+      case "female":
+      case "women":
+        return `${baseQuery} women female`;
+      default:
+        return baseQuery;
+    }
+  };
+
+  // Search for products by slot type with gender personalization
   const {
-    products: outerAndShirts,
-    loading: loadingOuter,
-    error: errorOuter,
+    products: outerwearProducts,
+    loading: loadingOuterwear,
+    error: errorOuterwear,
   } = useProductSearch({
-    query: "overcoat shirt jacket coat",
-    first: 5,
+    query: getGenderSpecificQuery("coat jacket overcoat blazer"),
+    first: 8,
   });
 
   const {
-    products: teesAndInners,
+    products: topProducts,
     loading: loadingTop,
     error: errorTop,
   } = useProductSearch({
-    query: "tshirt t-shirt inner undershirt",
-    first: 5,
+    query: getGenderSpecificQuery("tshirt t-shirt inner undershirt shirt"),
+    first: 8,
   });
 
   const {
-    products: trousers,
+    products: bottomProducts,
     loading: loadingBottom,
     error: errorBottom,
   } = useProductSearch({
-    query: "trouser pants jeans",
-    first: 5,
+    query: getGenderSpecificQuery("pants trousers jeans leggings"),
+    first: 8,
   });
 
   // Fallback to popular products if search fails
   const { products: popularProducts, loading: loadingPopular } =
     usePopularProducts();
-
-  // Debug logging
-  console.log("Product search debug:", {
-    outerAndShirts: outerAndShirts?.length || 0,
-    teesAndInners: teesAndInners?.length || 0,
-    trousers: trousers?.length || 0,
-    popularProducts: popularProducts?.length || 0,
-    errors: { errorOuter, errorTop, errorBottom },
-  });
 
   const productToItem = (p: any): Item => {
     const imageUrl =
@@ -90,51 +121,64 @@ export default function Create({
     };
   };
 
-  // Combine all searched products into one list, fallback to popular products
-  const allProducts: any[] = useMemo(() => {
-    const outerList = Array.isArray(outerAndShirts)
-      ? outerAndShirts
-      : ((outerAndShirts as any)?.nodes ?? []);
-    const topList = Array.isArray(teesAndInners)
-      ? teesAndInners
-      : ((teesAndInners as any)?.nodes ?? []);
-    const bottomList = Array.isArray(trousers)
-      ? trousers
-      : ((trousers as any)?.nodes ?? []);
+  // Get products for specific slot type
+  const getProductsForSlot = (slotIndex: number) => {
+    const outerwearList = Array.isArray(outerwearProducts)
+      ? outerwearProducts
+      : ((outerwearProducts as any)?.nodes ?? []);
+    const topList = Array.isArray(topProducts)
+      ? topProducts
+      : ((topProducts as any)?.nodes ?? []);
+    const bottomList = Array.isArray(bottomProducts)
+      ? bottomProducts
+      : ((bottomProducts as any)?.nodes ?? []);
 
-    console.log("Product lists:", { outerList, topList, bottomList });
-
-    // If no searched products found, use popular products as fallback
+    // If no products found, use popular products as fallback
     if (
-      outerList.length === 0 &&
+      outerwearList.length === 0 &&
       topList.length === 0 &&
       bottomList.length === 0
     ) {
-      console.log(
-        "No searched products found, using popular products fallback"
-      );
       const popularList = Array.isArray(popularProducts)
         ? popularProducts
         : ((popularProducts as any)?.nodes ?? []);
       return popularList;
     }
 
-    // Combine all searched products
-    const combined = [...outerList, ...topList, ...bottomList];
+    switch (slotIndex) {
+      case 0:
+        return outerwearList.length > 0
+          ? outerwearList
+          : Array.isArray(popularProducts)
+            ? popularProducts
+            : ((popularProducts as any)?.nodes ?? []);
+      case 1:
+        return topList.length > 0
+          ? topList
+          : Array.isArray(popularProducts)
+            ? popularProducts
+            : ((popularProducts as any)?.nodes ?? []);
+      case 2:
+        return bottomList.length > 0
+          ? bottomList
+          : Array.isArray(popularProducts)
+            ? popularProducts
+            : ((popularProducts as any)?.nodes ?? []);
+      default:
+        return Array.isArray(popularProducts)
+          ? popularProducts
+          : ((popularProducts as any)?.nodes ?? []);
+    }
+  };
 
-    console.log("Combined searched products:", combined.length);
-    return combined;
-  }, [outerAndShirts, teesAndInners, trousers, popularProducts]);
-
-  // Convert to Item format for the existing system
-  const curatedItems: Item[] = useMemo(() => {
-    return allProducts.map(productToItem);
-  }, [allProducts]);
-
-  const itemById = useMemo(
-    () => new Map(curatedItems.map((i) => [i.id, i] as const)),
-    [curatedItems]
-  );
+  const itemById = useMemo(() => {
+    const allItems = [
+      ...getProductsForSlot(0).map(productToItem),
+      ...getProductsForSlot(1).map(productToItem),
+      ...getProductsForSlot(2).map(productToItem),
+    ];
+    return new Map(allItems.map((i) => [i.id, i] as const));
+  }, [outerwearProducts, topProducts, bottomProducts, popularProducts]);
 
   const [nameA, setNameA] = useState("A");
   const [nameB, setNameB] = useState("B");
@@ -153,8 +197,33 @@ export default function Create({
   });
 
   const loadingAny =
-    loadingOuter || loadingTop || loadingBottom || loadingPopular;
-  const errorAny = errorOuter || errorTop || errorBottom;
+    loadingOuterwear ||
+    loadingTop ||
+    loadingBottom ||
+    loadingPopular ||
+    loadingAttributes;
+  const errorAny = errorOuterwear || errorTop || errorBottom;
+
+  // Calculate how many slots to show for each option - more restrictive
+  const getVisibleSlots = (ids: string[], isOptionA: boolean) => {
+    const filledCount = ids.filter((id) => id !== "").length;
+
+    if (filledCount === 0) return 1;
+
+    const otherOptionIds = isOptionA ? fitBIds : fitAIds;
+    const otherOptionFilledCount = otherOptionIds.filter(
+      (id) => id !== ""
+    ).length;
+
+    if (filledCount <= otherOptionFilledCount) {
+      return Math.min(filledCount + 1, 3);
+    }
+
+    return filledCount;
+  };
+
+  const visibleSlotsA = getVisibleSlots(fitAIds, true);
+  const visibleSlotsB = getVisibleSlots(fitBIds, false);
 
   const canPublish = useMemo(
     () =>
@@ -173,13 +242,20 @@ export default function Create({
       const next = [...fitAIds];
       next[picker.idx] = id;
       setFitAIds(next);
+      // console.log('Selected for Option A:', { slot: picker.idx, productId: id, allAIds: next });
     } else {
       const next = [...fitBIds];
       next[picker.idx] = id;
       setFitBIds(next);
+      // console.log('Selected for Option B:', { slot: picker.idx, productId: id, allBIds: next });
     }
     setPicker((prev) => ({ ...prev, open: false }));
   }
+
+  const handleGenderSelect = (gender: string) => {
+    setSelectedGender(gender);
+    setShowGenderPrompt(false);
+  };
 
   async function publish() {
     if (!canPublish) return;
@@ -198,12 +274,22 @@ export default function Create({
     navigate("/vote");
   }
 
-  const Slot = ({ id, onClick }: { id?: string; onClick: () => void }) => {
+  const Slot = ({
+    id,
+    onClick,
+    isVisible,
+  }: {
+    id?: string;
+    onClick: () => void;
+    isVisible: boolean;
+  }) => {
+    if (!isVisible) return null;
+
     const item = id ? itemById.get(id) : undefined;
     return (
       <button
         onClick={onClick}
-        className="w-20 h-20 rounded-full border-2 border-black flex items-center justify-center overflow-hidden"
+        className="w-20 h-20 rounded-xl border-2 border-white hover:border-blue-400 flex items-center justify-center overflow-hidden transition-colors duration-200"
         title={loadingAny ? "Loading products..." : undefined}
       >
         {item ? (
@@ -213,36 +299,106 @@ export default function Create({
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-2xl">{loadingAny ? "…" : "+"}</span>
+          <span className="text-2xl text-white">{loadingAny ? "…" : "+"}</span>
         )}
       </button>
     );
   };
 
+  // Current slot products for the modal
+  const getCurrentSlotProducts = () => {
+    if (!picker.open) return [];
+    return getProductsForSlot(picker.idx);
+  };
+
+  const getCurrentSlotItems = () => {
+    return getCurrentSlotProducts().map(productToItem);
+  };
+
+  // Gender selection prompt
+  if (showGenderPrompt) {
+    return (
+      <div className="min-h-screen bg-black text-white pt-4 pb-28 px-5">
+        <div className="mb-6 flex flex-col items-center">
+          <Button
+            onClick={() => navigate("/")}
+            className="text-white text-2xl mb-4"
+          >
+            ←
+          </Button>
+        </div>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-3">
+            Select your preference
+          </h2>
+          <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
+            Help us show you the most relevant products for your style
+          </p>
+        </div>
+        <div className="space-y-4 max-w-sm mx-auto">
+          <button
+            onClick={() => handleGenderSelect("male")}
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
+          >
+            <span className="text-lg">Men's Products</span>
+          </button>
+          <button
+            onClick={() => handleGenderSelect("female")}
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
+          >
+            <span className="text-lg">Women's Products</span>
+          </button>
+          <button
+            onClick={() => handleGenderSelect("unisex")}
+            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
+          >
+            <span className="text-lg">Show All Products</span>
+          </button>
+        </div>
+        <div className="mt-8 text-center">
+          <p className="text-gray-400 text-sm">
+            You can change this preference later in settings
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="pt-4 pb-28 px-5">
+    <div className="fixed inset-0 bg-black text-white pt-4 pb-28 px-5 overflow-y-auto">
       <div className="mb-3 flex flex-col items-center">
-        <Button onClick={() => navigate("/")} className="text-black text-2xl">
+        <Button onClick={() => navigate("/")} className="text-white text-2xl">
           ←
         </Button>
-        <div className="w-full mb-4">
-          <h2 className="text-2xl font-bold text-center">Create your poll</h2>
-        </div>
+      </div>
+      <div className="w-full mb-1">
+        <h2 className="text-2xl font-bold text-center text-white">
+          Create your poll
+        </h2>
       </div>
 
       {loadingAny && (
-        <div className="mb-3 text-center text-sm text-gray-600">
-          Searching for products…
+        <div className="mb-3 text-center text-sm text-gray-300">
+          {loadingAttributes
+            ? "Loading your preferences..."
+            : "Searching for products…"}
         </div>
       )}
       {errorAny && (
-        <div className="mb-3 text-center text-sm text-red-600">
+        <div className="mb-3 text-center text-sm text-red-400">
           Couldn't search for products. Using popular products instead.
         </div>
       )}
-      {curatedItems.length === 0 && !loadingAny && (
-        <div className="mb-3 text-center text-sm text-yellow-600">
-          No products found. Check your search queries.
+
+      {effectiveGender && (
+        <div className="mb-3 text-center text-sm text-blue-400">
+          Showing{" "}
+          {effectiveGender === "male"
+            ? "men"
+            : effectiveGender === "female"
+              ? "women"
+              : "all"}{" "}
+          products for you
         </div>
       )}
 
@@ -250,13 +406,13 @@ export default function Create({
         <input
           value={nameA}
           onChange={(e) => setNameA(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
+          className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
           placeholder="name of fit"
         />
         <input
           value={nameB}
           onChange={(e) => setNameB(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
+          className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
           placeholder="name of fit"
         />
       </div>
@@ -264,12 +420,22 @@ export default function Create({
       <div className="grid grid-cols-2 gap-6 items-start mb-6">
         <div className="flex flex-col items-center gap-6">
           {fitAIds.map((id, idx) => (
-            <Slot key={idx} id={id} onClick={() => select("A", idx)} />
+            <Slot
+              key={idx}
+              id={id}
+              onClick={() => select("A", idx)}
+              isVisible={idx < visibleSlotsA}
+            />
           ))}
         </div>
         <div className="flex flex-col items-center gap-6">
           {fitBIds.map((id, idx) => (
-            <Slot key={idx} id={id} onClick={() => select("B", idx)} />
+            <Slot
+              key={idx}
+              id={id}
+              onClick={() => select("B", idx)}
+              isVisible={idx < visibleSlotsB}
+            />
           ))}
         </div>
       </div>
@@ -277,20 +443,24 @@ export default function Create({
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        className="w-full rounded-xl bg-gray-200 p-4 max-h-12 mb-4"
+        className="w-full rounded-xl bg-gray-800 text-white border border-gray-600 p-4 max-h-12 mb-4 placeholder-gray-400 focus:outline-none focus:border-blue-500"
         placeholder="Description"
       />
 
-      <Button onClick={publish} disabled={!canPublish || loadingAny}>
+      <Button
+        onClick={publish}
+        disabled={!canPublish || loadingAny}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+      >
         Publish
       </Button>
 
       <ItemPickerModal
         open={picker.open}
         onClose={() => setPicker((prev) => ({ ...prev, open: false }))}
-        items={curatedItems}
+        items={getCurrentSlotItems()}
         onSelect={(item) => placeItem(item.id)}
-        products={allProducts}
+        products={getCurrentSlotProducts()}
       />
     </div>
   );

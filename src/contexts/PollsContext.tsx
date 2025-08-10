@@ -166,13 +166,13 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
         choice: "A" | "B",
         userId: string
       ): Promise<Poll | undefined> => {
-        const chosenFitId = choice === "A" ? (await supabase.from("published_battles").select("fit_a_id, fit_b_id").eq("id", pollId).single()).data?.fit_a_id : (await supabase.from("published_battles").select("fit_a_id, fit_b_id").eq("id", pollId).single()).data?.fit_b_id;
-        const { error } = await supabase
+        // Insert vote per pipeline spec; ignore uniqueness violations (already voted)
+        const { error: voteErr } = await supabase
           .from("votes")
-          .insert({ battle_id: pollId, user_id: userId, chosen_fit_id: chosenFitId })
+          .insert({ published_id: pollId, user_id: userId, choice })
           .select("id")
           .single();
-        if (error && (error as any).code !== "23505") throw error;
+        if (voteErr && (voteErr as any).code !== "23505") throw voteErr as any;
 
         // Fetch updated published row for counters
         const { data: pub } = await supabase
@@ -211,9 +211,9 @@ export function PollsProvider({ children }: { children: React.ReactNode }) {
 
         const { data: voted } = await supabase
           .from("votes")
-          .select("battle_id")
+          .select("published_id")
           .eq("user_id", userId);
-        const votedSet = new Set((voted ?? []).map((v: any) => v.battle_id));
+        const votedSet = new Set((voted ?? []).map((v: any) => v.published_id));
 
         const candidate = (published ?? []).find((b) => !votedSet.has(b.id));
         if (!candidate) return undefined;
