@@ -7,7 +7,6 @@ import {
   Button,
   useProductSearch,
   usePopularProducts,
-  useBuyerAttributes,
 } from "@shopify/shop-minis-react";
 
 // Category data structure
@@ -281,10 +280,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     }, 800); // Delay to match the flying animation
   }
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender);
-    setShowGenderPrompt(false);
-  };
+
 
   async function publish() {
     if (!canPublish) return;
