@@ -27,7 +27,8 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "types": ["vite/client"]
   },
   "exclude": ["node_modules", "dist"]
 }

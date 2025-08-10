@@ -17,7 +17,9 @@ export default function ExpandModal({
         onClick={onClose}
         aria-label="Close expand modal"
       />
-      <div className="absolute inset-x-4 bottom-10 top-20 rounded-2xl bg-zinc-900 border border-white/10 shadow-xl" />
+      <div className="absolute inset-x-4 bottom-10 top-20 rounded-2xl bg-zinc-900 border border-white/10 shadow-xl overflow-auto">
+        {children}
+      </div>
     </div>
   );
 }

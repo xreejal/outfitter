@@ -11,6 +11,7 @@ import { PollsProvider } from "./contexts/PollsContext";
 import { SavedProvider } from "./contexts/SavedContext";
 import { UserProvider } from "./contexts/UserContext";
 import { ensureSeedsLoaded } from "./data/seed-loader";
+import { CommentsProvider } from "./contexts/CommentsContext";
 
 function useHashRoute() {
   const [route, setRoute] = useState<string>(
@@ -39,7 +40,7 @@ export function App() {
       const pollId = route.split("/poll-results/")[1];
       return <PollResults pollId={pollId} navigate={navigate} />;
     }
-    
+
     switch (route) {
       case "/create":
         return <Create navigate={navigate} />;
@@ -59,12 +60,18 @@ export function App() {
     <UserProvider>
       <CatalogProvider>
         <PollsProvider>
-          <SavedProvider>
-            <div className={`min-h-screen bg-white ${route !== "/vote" ? "pb-20" : ""}`}>
-              <Screen />
-              {route !== "/vote" && <BottomNav route={route} navigate={navigate} />}
-            </div>
-          </SavedProvider>
+          <CommentsProvider>
+            <SavedProvider>
+              <div
+                className={`min-h-screen bg-white ${route !== "/vote" ? "pb-20" : ""}`}
+              >
+                <Screen />
+                {route !== "/vote" && (
+                  <BottomNav route={route} navigate={navigate} />
+                )}
+              </div>
+            </SavedProvider>
+          </CommentsProvider>
         </PollsProvider>
       </CatalogProvider>
     </UserProvider>
