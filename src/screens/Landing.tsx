@@ -426,7 +426,6 @@ export default function Landing({
           margin-bottom: 30px;
           color: white;
           text-align: center;
-          text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
           position: relative;
           height: auto;
         }
