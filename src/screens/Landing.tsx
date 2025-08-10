@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 
 // FabMenu Component
 function FabMenu({ navigate }: { navigate: (path: string) => void }) {
@@ -43,11 +43,6 @@ export default function Landing({
 }: {
   navigate?: (path: string) => void;
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   return (
     <>
