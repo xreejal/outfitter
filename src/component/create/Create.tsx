@@ -325,7 +325,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   };
 
   const handleContinueToOutfit = () => {
-    if (selectedCategories.length > 0) {
+    if (selectedCategories.length === 3) {
       setShowCategoryPrompt(false);
     }
   };
@@ -389,10 +389,10 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-3">Select your style</h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
-            Choose up to 3 categories.
+            Choose exactly 3 categories.
           </p>
           <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
-            Customize your outfit!
+            Each category will become a slot in your outfit!
           </p>
         </div>
 
@@ -489,16 +489,22 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
             </div>
 
             {/* Continue Button */}
-            {selectedCategories.length > 0 && (
-              <div className="mt-8">
-                <Button
-                  onClick={handleContinueToOutfit}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  Continue to Outfit Builder
-                </Button>
-              </div>
-            )}
+            <div className="mt-8">
+              <Button
+                onClick={handleContinueToOutfit}
+                disabled={selectedCategories.length !== 3}
+                className={`w-full font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
+                  selectedCategories.length === 3
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {selectedCategories.length === 3 
+                  ? 'Continue to Outfit Builder' 
+                  : `Select ${3 - selectedCategories.length} more categor${3 - selectedCategories.length === 1 ? 'y' : 'ies'}`
+                }
+              </Button>
+            </div>
           </div>
         )}
       </div>
