@@ -4,6 +4,7 @@ import { useUser } from "../contexts/UserContext";
 import { useCatalog } from "../contexts/CatalogContext";
 import { useSaved } from "../contexts/SavedContext";
 import { Fit, Item } from "../types";
+import ExpandModal from "../components/ExpandModal";
 
 // Components
 function BackIcon() {
@@ -25,6 +26,7 @@ function BottomActionBar({
   phase,
   canSubmit,
   percent,
+  isMajority,
   onBack,
   onSubmit,
   onNext,
@@ -39,11 +41,23 @@ function BottomActionBar({
     | "entering";
   canSubmit: boolean;
   percent: number;
+  isMajority: boolean;
   onBack: () => void;
   onSubmit: () => void;
   onNext: () => void;
 }) {
   const isResults = phase === "results" || phase === "exiting";
+  const [animatedWidth, setAnimatedWidth] = useState<number>(100);
+
+  useEffect(() => {
+    if (isResults) {
+      setAnimatedWidth(100);
+      requestAnimationFrame(() => setAnimatedWidth(percent));
+    } else {
+      setAnimatedWidth(100);
+    }
+  }, [isResults, percent]);
+
   return (
     <div className="fixed bottom-4 inset-x-4 flex items-center gap-3">
       {/* Back */}
@@ -66,13 +80,30 @@ function BottomActionBar({
             Submit
           </button>
         ) : (
-          <div className="rounded-full bg-zinc-800 h-12 relative overflow-hidden animate-fade-in">
-            <div
-              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-              style={{ width: `${percent}%` }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
-              {percent}%
+          <div className="relative animate-fade-in">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-center text-xs text-zinc-300 whitespace-nowrap">
+              {isMajority
+                ? "You were in the majority"
+                : "You were not in the majority"}
+            </div>
+            <div className="rounded-full bg-zinc-800 h-12 relative overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                style={{ width: `${animatedWidth}%` }}
+              />
+              {/* Percentage pill to the right of the green bar */}
+              <div
+                className="absolute transition-all duration-500"
+                style={{
+                  left: `calc(${animatedWidth}% + 8px)`,
+                  top: "50%",
+                  transform: "translate(-100%, -50%)",
+                }}
+              >
+                <span className="px-2 py-0.5 rounded-full bg-zinc-700 text-white text-xs font-medium">
+                  {percent}%
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -103,7 +134,8 @@ function HeaderRow({
   onCategoryChange: (category: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 pt-2 pb-2">
+      {/* added vertical padding */}
       <button
         onClick={() => navigate?.("/")}
         className="size-10 rounded-full bg-zinc-800 text-zinc-100 grid place-items-center"
@@ -183,8 +215,8 @@ function FitMediaStack({
   return (
     <div className="relative">
       {/* Title pinned */}
-      <div className="absolute top-2 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
-      <div className="grid grid-cols-2 gap-2 pt-8">
+      <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
+      <div className="grid grid-cols-2 gap-2 pt-12">
         {fit.itemIds.slice(0, 4).map((itemId) => {
           const item = items.find((i) => i.id === itemId);
           return (
@@ -228,9 +260,12 @@ function FitSelectors({
     return (
       <button
         onClick={() => onChange(side)}
-        className={`flex-1 h-10 rounded-full text-sm font-medium transition-colors ${
-          isActive ? "bg-zinc-800 text-white" : "bg-zinc-800/60 text-zinc-300"
-        } ${isChosen ? "ring-2 ring-emerald-500" : ""}`}
+        aria-pressed={isActive}
+        className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-300 ${
+          isActive
+            ? "bg-emerald-600 text-white opacity-100"
+            : "bg-zinc-800/70 text-zinc-300 opacity-90"
+        }`}
       >
         {`Fit ${side}`}
       </button>
@@ -267,16 +302,14 @@ function BattleCard({
 }) {
   const { isSaved, toggleSave } = useSaved();
   const saved = isSaved(pollId, fit.id);
+  const [expandOpen, setExpandOpen] = useState(false);
 
-  // Determine button position based on side
   const actionRowPosition = "top-2 right-2";
 
   return (
     <div
       className={`
-        rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 h-[75dvh]
-        ${isSelected ? "ring-3 ring-emerald-500" : ""}
-        ${isExpanded ? "animate-expand-to-full min-h-[68dvh]" : ""}
+        rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
@@ -298,34 +331,38 @@ function BattleCard({
             e.stopPropagation();
             toggleSave(pollId, fit.id, side);
           }}
-          className="h-9 w-9 rounded-full bg-white/90 text-zinc-900 shadow grid place-items-center"
+          className="h-10 w-10 grid place-items-center text-zinc-100 active:scale-95 transition-transform"
           aria-label="Save fit"
         >
           <svg
-            width="16"
-            height="16"
+            width="20"
+            height="20"
             viewBox="0 0 16 16"
             fill={saved ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="1.5"
+            stroke="white"
+            strokeWidth="1.6"
           >
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
         </button>
         <button
-          className="h-9 w-9 rounded-md bg-zinc-900/70 text-zinc-100 grid place-items-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpandOpen(true);
+          }}
+          className="h-10 w-10 grid place-items-center text-zinc-100 active:scale-95 transition-transform"
           aria-label="Expand fit"
         >
           <svg
-            width="14"
-            height="14"
+            width="20"
+            height="20"
             viewBox="0 0 16 16"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="1.6"
           >
             <path
-              d="M8 3v10M3 8h10"
+              d="M3 6V3h3M13 10v3h-3M6 13H3v-3M10 3h3v3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -339,6 +376,8 @@ function BattleCard({
         className="absolute inset-0 z-10 rounded-xl"
         aria-label={`Select fit ${side}`}
       />
+
+      <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)} />
     </div>
   );
 }
@@ -409,6 +448,14 @@ export default function Vote({
     setPhase("selected");
   }, [activeTab]);
 
+  // Auto-select the viewed tab when selectedSide is cleared (e.g., on new poll)
+  useEffect(() => {
+    if (!selectedSide) {
+      setSelectedSide(activeTab);
+      setPhase("selected");
+    }
+  }, [selectedSide, activeTab]);
+
   const totals = useMemo(() => {
     const p = currentPoll;
     if (!p) return { A: 0, B: 0 };
@@ -436,14 +483,18 @@ export default function Vote({
         (updated.votes[selectedSide] / newTotal) * 100
       );
       setPercentForSelected(percent);
-      // Trigger expand once vote is saved
-      requestAnimationFrame(() => setPhase("expanding"));
+      // Enter results (expanded height) without moving the card container
+      setPhase("results");
     }
   }
 
   function handleNext() {
-    // Start exit animation on expanded card
-    setPhase("exiting");
+    // Collapse back to normal height and swap content without sliding the card
+    setCurrentPoll(nextPoll);
+    setNextPoll(getNextOpenPollForUser(user.id));
+    setSelectedSide(null);
+    setPercentForSelected(0);
+    setPhase("idle");
   }
 
   if (!currentPoll) {
@@ -463,13 +514,12 @@ export default function Vote({
     );
   }
 
-  const isResultsPhase = phase === "results" || phase === "exiting";
-  const expandedSide =
-    isResultsPhase || phase === "expanding" ? selectedSide : null;
+  const isResultsPhase = phase === "results";
 
   return (
-    <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-1 pb-20">
-      {!isResultsPhase && phase !== "expanding" ? (
+    <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-2 pb-20">
+      {/* extra top padding */}
+      {!isResultsPhase ? (
         <>
           <div className="mt-2">
             <BattleCard
@@ -485,23 +535,7 @@ export default function Vote({
           </div>
         </>
       ) : (
-        <div
-          className={`mt-2 ${phase === "exiting" ? (selectedSide === "A" ? "animate-slide-out-up" : "animate-slide-out-down") : ""}`}
-          ref={expandedRef}
-          onAnimationEnd={(e) => {
-            if (phase === "expanding") {
-              setPhase("results");
-            } else if (phase === "exiting") {
-              // Swap to next poll and slide in
-              setCurrentPoll(nextPoll);
-              setNextPoll(getNextOpenPollForUser(user.id));
-              setSelectedSide(null);
-              setPercentForSelected(0);
-              setActiveTab("A");
-              setPhase("entering");
-            }
-          }}
-        >
+        <div className="mt-2" ref={expandedRef}>
           <BattleCard
             side={selectedSide!}
             fit={selectedSide === "A" ? currentPoll.fitA : currentPoll.fitB}
@@ -515,33 +549,18 @@ export default function Vote({
         </div>
       )}
 
-      {phase === "entering" && (
-        <div
-          className={`mt-2 animate-slide-in-up`}
-          onAnimationEnd={() => setPhase("idle")}
-        >
-          <BattleCard
-            side={activeTab}
-            fit={currentPoll!.fitA}
-            items={items}
-            pollId={currentPoll!.id}
-            mediaAlignment="left"
-            isSelected={false}
-            tall
-            onSelect={() => {}}
-          />
-        </div>
+      {!isResultsPhase && (
+        <FitSelectors
+          active={activeTab}
+          selected={selectedSide}
+          onChange={(s) => setActiveTab(s)}
+        />
       )}
-
-      <FitSelectors
-        active={activeTab}
-        selected={selectedSide}
-        onChange={(s) => setActiveTab(s)}
-      />
       <BottomActionBar
         phase={phase}
         canSubmit={!!selectedSide}
         percent={percentForSelected}
+        isMajority={percentForSelected >= 50}
         onBack={() => navigate?.("/")}
         onSubmit={handleSubmit}
         onNext={handleNext}
