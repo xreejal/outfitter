@@ -64,12 +64,12 @@ function BottomActionBar({
   }, [isResults, percent]);
 
   return (
-    <div className="bottom-4 fixed inset-x-4 flex items-center gap-3">
+    <div className="fixed bottom-4 inset-x-4 flex items-center gap-3">
       {/* Back */}
       <button
         onClick={onBack}
         aria-label="Go back"
-        className="place-items-center grid bg-zinc-800 rounded-full size-12 text-zinc-100"
+        className="size-12 rounded-full glass-card text-white grid place-items-center border border-white/20"
       >
         <BackIcon />
       </button>
@@ -80,7 +80,7 @@ function BottomActionBar({
           <button
             disabled={!canSubmit}
             onClick={onSubmit}
-            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "bg-emerald-500 text-white active:bg-emerald-600" : "bg-zinc-700 text-zinc-400"}`}
+            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "glass-card text-white border border-white/20 hover:bg-white/10 active:bg-white/20" : "glass-card text-white/40 border border-white/10"}`}
           >
             Submit
           </button>
@@ -91,9 +91,9 @@ function BottomActionBar({
                 ? "You were in the majority"
                 : "You were not in the majority"}
             </div>
-            <div className="relative bg-zinc-800 rounded-full h-12 overflow-hidden">
+            <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
               <div
-                className="bg-emerald-500 rounded-full h-full transition-all duration-500"
+                className="h-full rounded-full bg-gray-600 transition-all duration-500"
                 style={{ width: `${animatedWidth}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
@@ -108,7 +108,7 @@ function BottomActionBar({
       {isResults ? (
         <button
           onClick={onNext}
-          className="bg-emerald-500 active:bg-emerald-600 rounded-xl w-16 h-12 font-medium text-white"
+          className="h-12 w-16 rounded-xl glass-card text-white font-medium border border-white/20 hover:bg-white/10 active:bg-white/20"
         >
           Next
         </button>
@@ -152,7 +152,7 @@ function FitMediaStack({
               .map((id: string, idx: number) => (
                 <div
                   key={`${String(id)}-${idx}`}
-                  className="rounded-lg overflow-hidden"
+                  className="overflow-hidden rounded-lg"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {loading ? (
@@ -239,8 +239,8 @@ function FitSelectors({
         aria-pressed={isActive}
         className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-300 ${
           isActive
-            ? "bg-emerald-600 text-white opacity-100"
-            : "bg-zinc-800/70 text-zinc-300 opacity-90"
+            ? "bg-gray-700 text-white opacity-100"
+            : "glass-card text-white/80 opacity-90 border border-white/20"
         }`}
       >
         {`Fit ${side}`}
@@ -248,7 +248,7 @@ function FitSelectors({
     );
   };
   return (
-    <div className="bottom-24 fixed inset-x-4 flex gap-2">
+    <div className="fixed inset-x-4 bottom-24 flex gap-2">
       <Button side="A" />
       <Button side="B" />
     </div>
@@ -309,7 +309,7 @@ function BattleCard({
     <div
       onClick={onSelect}
       className={`
-        rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
+        rounded-xl glass-card border border-white/20 p-3 relative transition-all duration-300 ${isExpanded ? "h-[75dvh]" : "h-[68dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
@@ -326,20 +326,25 @@ function BattleCard({
         className={`absolute ${actionRowPosition} z-20 flex items-center gap-2`}
       >
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            toggleSave(pollId, fit.id, side);
+            await toggleSave(pollId, fit.id, side);
           }}
-          className="place-items-center grid w-10 h-10 text-zinc-100 active:scale-95 transition-transform"
-          aria-label="Save fit"
+          className={`h-10 w-10 grid place-items-center active:scale-95 transition-all duration-200 rounded-full ${
+            saved 
+              ? "bg-gray-600 text-white shadow-lg shadow-gray-600/25" 
+              : "text-white hover:bg-white/10 glass-card border border-white/20"
+          }`}
+          aria-label={saved ? "Unsave fit" : "Save fit"}
         >
           <svg
             width="20"
             height="20"
             viewBox="0 0 16 16"
             fill={saved ? "currentColor" : "none"}
-            stroke="white"
+            stroke="currentColor"
             strokeWidth="1.6"
+            className="transition-all duration-200"
           >
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
@@ -349,7 +354,7 @@ function BattleCard({
             e.stopPropagation();
             setExpandOpen(true);
           }}
-          className="place-items-center grid w-10 h-10 text-zinc-100 active:scale-95 transition-transform"
+          className="h-10 w-10 grid place-items-center text-white active:scale-95 transition-transform glass-card border border-white/20"
           aria-label="Expand fit"
         >
           <svg
@@ -372,31 +377,31 @@ function BattleCard({
       {/* Removed full-card overlay to allow ProductCard interactions */}
 
       <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)}>
-        <div className="space-y-4 p-4">
-          <div className="font-semibold text-white text-base">Comments</div>
+        <div className="p-4 space-y-4">
+          <div className="text-white text-base font-semibold">Comments</div>
           <div className="space-y-2">
             {comments.map((c) => (
               <div
                 key={c.id}
-                className="bg-zinc-800/50 p-2 rounded-lg text-zinc-200 text-sm"
+                className="text-sm text-white glass-card border border-white/20 rounded-lg p-2"
               >
                 {c.body}
               </div>
             ))}
             {comments.length === 0 && (
-              <div className="text-zinc-400 text-sm">No comments yet.</div>
+              <div className="text-sm text-white/70">No comments yet.</div>
             )}
           </div>
           <div className="flex gap-2">
             <input
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 bg-zinc-800 px-3 py-2 rounded-lg outline-none text-white"
+              className="flex-1 glass-card text-white rounded-lg px-3 py-2 outline-none border border-white/20"
               placeholder="Add a comment"
             />
             <button
               onClick={submitComment}
-              className="bg-emerald-600 px-3 py-2 rounded-lg text-white"
+              className="px-3 py-2 rounded-lg bg-gray-700 text-white"
             >
               Post
             </button>
@@ -410,7 +415,7 @@ function BattleCard({
 function VersusBadge() {
   return (
     <div className="flex justify-center my-0.5">
-      <span className="bg-white/10 px-2 py-0.5 rounded-full font-semibold text-white/90 text-xs tracking-wide">
+      <span className="px-2 py-0.5 rounded-full text-xs font-semibold text-white/90 bg-white/10 tracking-wide">
         versus
       </span>
     </div>
@@ -420,12 +425,12 @@ function VersusBadge() {
 function ResultsPercentBar({ percent }: { percent: number }) {
   return (
     <div className="flex-1 max-w-[70%]">
-      <div className="relative bg-zinc-800 rounded-full h-12 overflow-hidden">
+      <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
         <div
-          className="bg-emerald-500 rounded-full h-full transition-all duration-500"
+          className="h-full rounded-full bg-gray-600 transition-all duration-500"
           style={{ width: `${percent}%` }}
         />
-        <div className="absolute inset-0 flex justify-center items-center font-medium text-white">
+        <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
           {percent}%
         </div>
       </div>
