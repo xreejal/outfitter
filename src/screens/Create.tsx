@@ -75,7 +75,7 @@ export default function Create({
     return (
       <button
         onClick={onClick}
-        className="w-20 h-20 rounded-full border-2 border-black flex items-center justify-center overflow-hidden"
+        className="flex justify-center items-center border-2 border-white/20 rounded-full w-20 h-20 overflow-hidden hover:scale-105 transition-transform duration-200 glass-card"
       >
         {item ? (
           <img
@@ -84,59 +84,85 @@ export default function Create({
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-2xl">+</span>
+          <span className="text-white/70 text-2xl">+</span>
         )}
       </button>
     );
   };
 
   return (
-    <div className="pt-4 pb-28 px-5">
-      <div className="mb-3 flex flex-col items-center">
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black px-5 pt-4 pb-28 min-h-screen">
+      <div className="flex flex-col items-center mb-6">
         <Button
           onClick={() => navigate("/")}
-          className="bg-white-500 text-black text-2xl"
+          className="mb-4 rounded-full w-12 h-12 text-white text-2xl hover:scale-110 transition-transform duration-200 glass-card"
         >
           ←
         </Button>
-        <div className="w-full mb-4">
-          <h2 className="text-2xl font-bold text-center">Create your poll</h2>
+        <div className="mb-6 w-full">
+          <h2 className="mb-2 font-bold text-white text-3xl text-center">Create your poll</h2>
+          <p className="text-white/70 text-sm text-center">Design two amazing outfits and let the community decide!</p>
         </div>
       </div>
-      <div className="w-12" />
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <input
-          value={nameA}
-          onChange={(e) => setNameA(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
-          placeholder="name of fit"
+      
+      <div className="mb-6 p-6 glass-card">
+        <h3 className="mb-4 font-semibold text-white text-lg text-center">Outfit Names</h3>
+        <div className="gap-4 grid grid-cols-2">
+          <input
+            value={nameA}
+            onChange={(e) => setNameA(e.target.value)}
+            className="w-full glass-input"
+            placeholder="Name of fit A"
+          />
+          <input
+            value={nameB}
+            onChange={(e) => setNameB(e.target.value)}
+            className="w-full glass-input"
+            placeholder="Name of fit B"
+          />
+        </div>
+      </div>
+
+      <div className="mb-6 p-6 glass-card">
+        <h3 className="mb-4 font-semibold text-white text-lg text-center">Select Items</h3>
+        <div className="items-start gap-6 grid grid-cols-2">
+          <div className="flex flex-col items-center gap-6">
+            <div className="mb-2 text-center">
+              <span className="font-medium text-white/80 text-sm">{nameA || 'Fit A'}</span>
+            </div>
+            {fitAIds.map((id, idx) => (
+              <Slot key={idx} id={id} onClick={() => select("A", idx)} />
+            ))}
+          </div>
+          <div className="flex flex-col items-center gap-6">
+            <div className="mb-2 text-center">
+              <span className="font-medium text-white/80 text-sm">{nameB || 'Fit B'}</span>
+            </div>
+            {fitBIds.map((id, idx) => (
+              <Slot key={idx} id={id} onClick={() => select("B", idx)} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6 p-6 glass-card">
+        <h3 className="mb-4 font-semibold text-white text-lg text-center">Poll Description</h3>
+        <textarea
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+          className="w-full min-h-[80px] resize-none glass-input"
+          placeholder="Describe what you're comparing or asking the community to vote on..."
         />
-        <input
-          value={nameB}
-          onChange={(e) => setNameB(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
-          placeholder="name of fit"
-        />
       </div>
-      <div className="grid grid-cols-2 gap-6 items-start mb-6">
-        <div className="flex flex-col items-center gap-6">
-          {fitAIds.map((id, idx) => (
-            <Slot key={idx} id={id} onClick={() => select("A", idx)} />
-          ))}
-        </div>
-        <div className="flex flex-col items-center gap-6">
-          {fitBIds.map((id, idx) => (
-            <Slot key={idx} id={id} onClick={() => select("B", idx)} />
-          ))}
-        </div>
+
+      <div className="flex justify-center">
+        <button 
+          onClick={publish}
+          className="w-full max-w-md liquid-glass-primary"
+        >
+          <span className="button-text">Publish Poll</span>
+        </button>
       </div>
-      <textarea
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-        className="w-full rounded-xl bg-gray-200 p-4 max-h-12 mb-4 "
-        placeholder="Description"
-      />
-      <Button onClick={publish}>Publish</Button>
 
       <ItemPickerModal
         open={picker.open}
