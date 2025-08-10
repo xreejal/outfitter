@@ -13,9 +13,9 @@ export function VotePage() {
             <Button variant="outline">Back</Button>
           </TransitionLink>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4 rounded-2xl bg-white text-center">Option A</Card>
-          <Card className="p-4 rounded-2xl bg-white text-center">Option B</Card>
+        <div className="grid grid-cols-2 gap-4 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
+          <Card className="p-4 rounded-2xl bg-gray-800 text-center text-white">Option A</Card>
+          <Card className="p-4 rounded-2xl bg-gray-800 text-center text-white">Option B</Card>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Button className="w-full bg-[#1a1a1a] text-white">Vote A</Button>

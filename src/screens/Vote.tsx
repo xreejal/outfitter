@@ -86,7 +86,7 @@ function BottomActionBar({
           </button>
         ) : (
           <div className="relative animate-fade-in">
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-center text-xs text-white/80 whitespace-nowrap">
+            <div className="mb-2 text-center text-xs text-white/80">
               {isMajority
                 ? "You were in the majority"
                 : "You were not in the majority"}
@@ -96,18 +96,8 @@ function BottomActionBar({
                 className="h-full rounded-full bg-gray-600 transition-all duration-500"
                 style={{ width: `${animatedWidth}%` }}
               />
-              {/* Percentage pill to the right of the green bar */}
-              <div
-                className="absolute transition-all duration-500"
-                style={{
-                  left: `calc(${animatedWidth}% + 8px)`,
-                  top: "50%",
-                  transform: "translate(-100%, -50%)",
-                }}
-              >
-                <span className="px-2 py-0.5 rounded-full glass-card border border-white/20 text-white text-xs font-medium">
-                  {percent}%
-                </span>
+              <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
+                {percent}%
               </div>
             </div>
           </div>
@@ -129,42 +119,6 @@ function BottomActionBar({
   );
 }
 
-function HeaderRow({
-  navigate,
-  category,
-  onCategoryChange,
-}: {
-  navigate?: (path: string) => void;
-  category: string;
-  onCategoryChange: (category: string) => void;
-}) {
-  return (
-    <div className="pt-2 pb-2">
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate?.("/")}
-          className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
-          aria-label="Go back"
-        >
-          ←
-        </button>
-      </div>
-      <div className="rounded-full glass-card text-white h-11 px-4 flex-1 flex items-center border border-white/20">
-        <select
-          value={category}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          className="bg-transparent text-white w-full outline-none"
-        >
-          <option value="all">All categories</option>
-          <option value="streetwear">Streetwear</option>
-          <option value="casual">Casual</option>
-          <option value="formal">Formal</option>
-          <option value="athleisure">Athleisure</option>
-        </select>
-      </div>
-    </div>
-  );
-}
 
 function buildProductGid(id: string): string {
   return id.startsWith("gid://shopify/Product/")
@@ -191,8 +145,8 @@ function FitMediaStack({
     return (
       <div className="space-y-4">
         {/* Main fit view - larger grid */}
-        <div className="bg-white rounded-2xl p-3">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="glass-card border border-white/20 rounded-2xl p-3">
+          <div className="grid grid-cols-2 gap-2 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
             {(loading ? productIds : (products ?? []).map((p: any) => p.id))
               .slice(0, 4)
               .map((id: string, idx: number) => (
@@ -214,7 +168,7 @@ function FitMediaStack({
           </div>
         </div>
         {/* Horizontal carousel of product cards */}
-        <div className="flex gap-2 overflow-x-auto snap-x pb-2">
+        <div className="flex gap-2 overflow-x-auto snap-x pb-2 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
           {(loading ? productIds : (products ?? []).map((p: any) => p.id)).map(
             (id: string, idx: number) => (
               <div
@@ -243,7 +197,7 @@ function FitMediaStack({
     <div className="relative">
       {/* Title pinned */}
       <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
-      <div className="grid grid-cols-2 gap-2 pt-12">
+      <div className="grid grid-cols-2 gap-2 pt-12 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
         {(loading ? productIds : (products ?? []).map((p: any) => p.id))
           .slice(0, 4)
           .map((id: string, idx: number) => (
@@ -524,6 +478,11 @@ export default function Vote({
       if (!currentPoll && phase !== "results") {
         const next = await getNextOpenPollForUser(user.id);
         setCurrentPoll(next ?? null);
+        if (next) {
+          setPhase("selected");
+          setSelectedSide("A");
+          setActiveTab("A");
+        }
       }
     })();
   }, [currentPoll, phase, user.id, getNextOpenPollForUser]);
@@ -537,12 +496,12 @@ export default function Vote({
 
   // Prefetch next unvoted while showing results
   useEffect(() => {
-    if (phase !== "results") return;
+    if (phase !== "results" || !resultPoll) return;
     let cancelled = false;
     (async () => {
       try {
         const next = await getNextOpenPollForUser(user.id);
-        if (!cancelled && next && next.id !== (resultPoll ?? currentPoll)?.id) {
+        if (!cancelled && next && next.id !== resultPoll.id) {
           setPrefetchedNext(next);
         }
       } catch {
@@ -552,7 +511,7 @@ export default function Vote({
     return () => {
       cancelled = true;
     };
-  }, [phase, user.id, getNextOpenPollForUser, currentPoll, resultPoll]);
+  }, [phase, user.id, getNextOpenPollForUser, resultPoll]);
 
   const totals = useMemo(() => {
     const p = currentPoll;
@@ -572,6 +531,9 @@ export default function Vote({
   async function handleSubmit() {
     if (!selectedSide || !currentPoll) return;
 
+    // Set phase to submitting to prevent any interference
+    setPhase("submitting");
+
     const optimistic: Poll = {
       ...currentPoll,
       votes: {
@@ -583,7 +545,10 @@ export default function Vote({
     const optimisticPercent = Math.round(
       (optimistic.votes[selectedSide] / optimisticTotal) * 100
     );
+    
+    // Clear current poll and set result poll
     setResultPoll(optimistic);
+    setCurrentPoll(null); // Clear the current poll immediately
     setPercentForSelected(optimisticPercent);
     setPhase("results");
 
@@ -599,6 +564,10 @@ export default function Vote({
       }
     } catch (e) {
       console.error("Vote failed", e);
+      // On error, restore the current poll and go back to selected state
+      setCurrentPoll(currentPoll);
+      setResultPoll(null);
+      setPhase("selected");
     }
   }
 
@@ -606,19 +575,17 @@ export default function Vote({
     const nextFromPrefetch = prefetchedNext;
     setPrefetchedNext(null);
 
-    setCurrentPoll(nextFromPrefetch ?? null);
+    // Reset voting state
     setResultPoll(null);
-    setSelectedSide(null);
+    setSelectedSide("A"); // Reset to default selection
     setPercentForSelected(0);
-    setPhase("idle");
+    setActiveTab("A"); // Reset active tab to A
 
-    if (!nextFromPrefetch) {
-      getNextOpenPollForUser(user.id)
-        .then((upcoming) => {
-          setCurrentPoll(upcoming ?? null);
-        })
-        .catch(() => {});
-    } else {
+    if (nextFromPrefetch) {
+      // We have a prefetched next poll
+      setCurrentPoll(nextFromPrefetch);
+      setPhase("selected");
+      
       // Prefetch subsequent next in background
       getNextOpenPollForUser(user.id)
         .then((upcoming) => {
@@ -627,23 +594,70 @@ export default function Vote({
           }
         })
         .catch(() => {});
+    } else {
+      // No prefetched poll, try to get next one
+      try {
+        const upcoming = await getNextOpenPollForUser(user.id);
+        if (upcoming) {
+          setCurrentPoll(upcoming);
+          setPhase("selected");
+        } else {
+          // No more polls available
+          setCurrentPoll(null);
+          setPhase("idle");
+        }
+      } catch (error) {
+        console.error("Failed to get next poll:", error);
+        setCurrentPoll(null);
+        setPhase("idle");
+      }
     }
   }
 
   const isResultsPhase = phase === "results";
 
-  if (!currentPoll && !isResultsPhase) {
+  if (!currentPoll && !resultPoll && !isResultsPhase) {
     return (
       <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-3 pb-24">
-        <HeaderRow
-          navigate={navigate}
-          category="all"
-          onCategoryChange={(category) => {}}
-        />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-white/70 text-center">
-            No open battles. Create one!
-          </p>
+        <div className="pt-2 pb-2">
+          <div className="flex items-center mb-3">
+            <button
+              onClick={() => navigate?.("/")}
+              className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+              aria-label="Go back"
+            >
+              ←
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
+          <div className="glass-card border border-white/20 p-8 rounded-2xl text-center max-w-sm">
+            <div className="text-4xl mb-4">🎉</div>
+            <h3 className="text-xl font-semibold text-white mb-3">
+              No more polls at the moment!
+            </h3>
+            <p className="text-white/70 mb-6">
+              You've voted on all available polls. Check back later for new battles or create your own!
+            </p>
+            <button 
+              onClick={() => navigate?.("/create")}
+              className="w-full glass-card border border-white/20 hover:bg-white/10 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+            >
+              Create New Poll
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state if we don't have the required data
+  if (!currentPoll && !resultPoll) {
+    return (
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-3 pb-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/60 mx-auto mb-4"></div>
+          <p className="text-white/70">Loading poll...</p>
         </div>
       </div>
     );
@@ -652,36 +666,40 @@ export default function Vote({
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-2 pb-32">
       {/* Poll Description Header */}
-      <div className="py-3 px-1">
-        <div className="flex items-center mb-3">
-          <button
-            onClick={() => navigate?.("/")}
-            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
-            aria-label="Go back"
-          >
-            ←
-          </button>
+      {!isResultsPhase && (
+        <div className="py-3 px-1">
+          <div className="flex items-center mb-3">
+            <button
+              onClick={() => navigate?.("/")}
+              className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
+              aria-label="Go back"
+            >
+              ←
+            </button>
+          </div>
+          <div className="text-center">
+            <h2 className="text-white text-lg font-medium">
+              {currentPoll?.description || "Vote on this outfit"}
+            </h2>
+          </div>
         </div>
-        <div className="text-center">
-          <h2 className="text-white text-lg font-medium">
-            {currentPoll?.description || "Vote on this outfit"}
-          </h2>
-        </div>
-      </div>
+      )}
       
       {!isResultsPhase ? (
         <>
-          <div className="mt-2">
-            <BattleCard
-              side={activeTab}
-              fit={activeTab === "A" ? currentPoll.fitA : currentPoll.fitB}
-              pollId={currentPoll.id}
-              mediaAlignment={activeTab === "A" ? "left" : "right"}
-              isSelected={selectedSide === activeTab}
-              tall
-              onSelect={() => handleSelect(activeTab)}
-            />
-          </div>
+          {currentPoll && (
+            <div className="mt-2">
+              <BattleCard
+                side={activeTab}
+                fit={activeTab === "A" ? currentPoll.fitA : currentPoll.fitB}
+                pollId={currentPoll.id}
+                mediaAlignment={activeTab === "A" ? "left" : "right"}
+                isSelected={selectedSide === activeTab}
+                tall
+                onSelect={() => handleSelect(activeTab)}
+              />
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -698,25 +716,28 @@ export default function Vote({
             </div>
             <div className="text-center">
               <h2 className="text-white text-lg font-medium">
-                {(resultPoll ?? currentPoll)?.description || "Vote on this outfit"}
+                {resultPoll?.description || "Vote on this outfit"}
               </h2>
+              <p className="text-white/70 text-sm mt-2">
+                You voted for Fit {selectedSide}
+              </p>
             </div>
           </div>
           
           <div className="mt-2" ref={expandedRef}>
-          <BattleCard
-            side={selectedSide!}
-            fit={
-              selectedSide === "A"
-                ? (resultPoll ?? currentPoll).fitA
-                : (resultPoll ?? currentPoll).fitB
-            }
-            pollId={(resultPoll ?? currentPoll).id}
-            mediaAlignment={selectedSide === "A" ? "left" : "right"}
-            isSelected={true}
-            isExpanded={true}
-            onSelect={() => {}}
-          />
+            <BattleCard
+              side={selectedSide!}
+              fit={
+                selectedSide === "A"
+                  ? resultPoll!.fitA
+                  : resultPoll!.fitB
+              }
+              pollId={resultPoll!.id}
+              mediaAlignment={selectedSide === "A" ? "left" : "right"}
+              isSelected={true}
+              isExpanded={false}
+              onSelect={() => {}}
+            />
           </div>
         </>
       )}
