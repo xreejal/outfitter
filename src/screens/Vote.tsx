@@ -64,23 +64,18 @@ function BottomActionBar({
   }, [isResults, percent]);
 
   return (
-    <div className="fixed bottom-4 inset-x-4 flex items-center gap-3">
-      {/* Back */}
-      <button
-        onClick={onBack}
-        aria-label="Go back"
-        className="size-12 rounded-full glass-card text-white grid place-items-center border border-white/20"
-      >
-        <BackIcon />
-      </button>
-
-      {/* Center */}
-      <div className="flex-1">
+    <>
+      {/* Fixed Footer with Submit/Results Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black border-t border-white/20 p-4 z-10">
         {!isResults ? (
           <button
             disabled={!canSubmit}
             onClick={onSubmit}
-            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "glass-card text-white border border-white/20 hover:bg-white/10 active:bg-white/20" : "glass-card text-white/40 border border-white/10"}`}
+            className={`w-full font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
+              canSubmit
+                ? 'glass-card border border-white/20 text-white hover:bg-white/10'
+                : 'glass-card border border-white/10 text-white/40 cursor-not-allowed'
+            }`}
           >
             Submit
           </button>
@@ -91,31 +86,29 @@ function BottomActionBar({
                 ? "You were in the majority"
                 : "You were not in the majority"}
             </div>
-            <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gray-600 transition-all duration-500"
-                style={{ width: `${animatedWidth}%` }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
-                {percent}%
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gray-600 transition-all duration-500"
+                    style={{ width: `${animatedWidth}%` }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
+                    {percent}%
+                  </div>
+                </div>
               </div>
+              <button
+                onClick={onNext}
+                className="h-12 w-16 rounded-xl glass-card text-white font-medium border border-white/20 hover:bg-white/10 active:bg-white/20"
+              >
+                Next
+              </button>
             </div>
           </div>
         )}
       </div>
-
-      {/* Right */}
-      {isResults ? (
-        <button
-          onClick={onNext}
-          className="h-12 w-16 rounded-xl glass-card text-white font-medium border border-white/20 hover:bg-white/10 active:bg-white/20"
-        >
-          Next
-        </button>
-      ) : (
-        <div className="w-12" />
-      )}
-    </div>
+    </>
   );
 }
 
@@ -196,7 +189,7 @@ function FitMediaStack({
   return (
     <div className="relative">
       {/* Title pinned */}
-      <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
+      <div className="absolute top-1 left-3 z-[5] text-white text-base font-bold">{`Fit ${fit.name}`}</div>
       <div className="grid grid-cols-2 gap-2 pt-12 [&_*]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white">
         {(loading ? productIds : (products ?? []).map((p: any) => p.id))
           .slice(0, 4)
@@ -237,13 +230,13 @@ function FitSelectors({
       <button
         onClick={() => onChange(side)}
         aria-pressed={isActive}
-        className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-300 ${
+        className={`flex-1 h-7 rounded-full text-sm font-medium transition-all duration-300 ${
           isActive
             ? "bg-gray-700 text-white opacity-100"
             : "glass-card text-white/80 opacity-90 border border-white/20"
         }`}
       >
-        {`Fit ${side}`}
+        {` Pick Fit ${side}`}
       </button>
     );
   };
@@ -349,7 +342,7 @@ function BattleCard({
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
         </button>
-        <button
+        {/* <button
           onClick={(e) => {
             e.stopPropagation();
             setExpandOpen(true);
@@ -371,7 +364,7 @@ function BattleCard({
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </button> */}
       </div>
 
       {/* Removed full-card overlay to allow ProductCard interactions */}
@@ -664,7 +657,7 @@ export default function Vote({
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-2 pb-32">
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-2 pb-28">
       {/* Poll Description Header */}
       {!isResultsPhase && (
         <div className="py-3 px-1">
