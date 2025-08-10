@@ -75,11 +75,6 @@ function FabMenu({ navigate }: { navigate: (path: string) => void }) {
 export default function Landing({
   navigate = (path: any) => console.log(`Navigate to: ${path}`)
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   return (
     <div className="hero-container">

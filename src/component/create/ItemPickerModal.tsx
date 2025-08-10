@@ -143,7 +143,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                       key={product.id}
                       className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
                     >
-                      <div onClick={(e) => handleProductClick(e, product)}>
+                      <div onClick={(e: React.MouseEvent<HTMLDivElement>) => handleProductClick(e, product)}>
                         <ProductCard 
                           product={product}
                           onFavoriteToggled={handleFavoriteToggled}
@@ -151,7 +151,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                       </div>
                       <div className="p-2 border-t border-gray-100">
                         <Button 
-                          onClick={(e) => handleProductClick(e, product)}
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleProductClick(e, product)}
                           size="sm"
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
                         >
@@ -181,7 +181,7 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
                       </div>
                       <div className="p-2 border-t border-gray-100">
                         <Button 
-                          onClick={(e) => {
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             e.preventDefault();
                             e.stopPropagation();
                             const productCard = (e.currentTarget as HTMLElement).closest('.product-card') as HTMLElement;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useCatalog } from "../contexts/CatalogContext";
 import ItemPickerModal from "../component/create/ItemPickerModal";
 import { Fit } from "../types";

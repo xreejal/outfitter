@@ -42,6 +42,7 @@ function buildProductGid(id: string): string {
 }
 
 function SavedFit({ entry }: { entry: SavedEntry }) {
+  const { toggleSave } = useSaved();
   const productIds = useMemo(
     () => entry.fit.itemIds.map((id) => buildProductGid(id)),
     [entry.fit.itemIds]
@@ -54,7 +55,27 @@ function SavedFit({ entry }: { entry: SavedEntry }) {
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
           <div className="font-medium text-sm">{entry.fit.name}</div>
-          <div className="text-gray-500 text-xs">Saved: {new Date(entry.savedAt).toLocaleDateString()}</div>
+          <div className="flex items-center gap-2">
+            <div className="text-gray-500 text-xs">Saved: {new Date(entry.savedAt).toLocaleDateString()}</div>
+            <button
+              onClick={async () => {
+                await toggleSave(entry.id, entry.fit.id, "A"); // "A" is just a placeholder since choice isn't used in unsave
+              }}
+              className="h-8 w-8 grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200"
+              aria-label="Remove from saved"
+              title="Remove from saved"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="transition-all duration-200"
+              >
+                <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="mb-3 text-gray-500 text-xs">by {entry.authorId}</div>
 
