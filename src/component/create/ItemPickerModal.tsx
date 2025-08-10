@@ -49,18 +49,17 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
     // console.log('Favorite toggled');
   };
 
-  const handleProductClick = (e: React.MouseEvent, product: any) => {
+  const handleProductClick = (
+    e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
+    product: any
+  ) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Find the corresponding item to get the id for selection
-    const item = items.find(item => item.id === String(product.id));
+    const item = items.find((item) => item.id === String(product.id));
     if (item) {
-      // Create flying animation effect
       const productCard = (e.currentTarget as HTMLElement).closest('.product-card') as HTMLElement;
       const rect = productCard.getBoundingClientRect();
       
-      // Create a flying element
       const flyingElement = document.createElement('div');
       flyingElement.style.position = 'fixed';
       flyingElement.style.left = `${rect.left}px`;
@@ -74,13 +73,10 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
       flyingElement.style.overflow = 'hidden';
       flyingElement.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
       flyingElement.style.backgroundColor = 'white';
-      
-      // Clone the entire product card content
       flyingElement.innerHTML = productCard.innerHTML;
       
       document.body.appendChild(flyingElement);
       
-      // Start the flying animation
       setTimeout(() => {
         flyingElement.style.transform = 'scale(0.8) rotate(5deg)';
         flyingElement.style.boxShadow = '0 15px 35px rgba(0,0,0,0.4)';
@@ -89,7 +85,6 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
           flyingElement.style.transform = 'scale(1.2) rotate(-5deg) translateY(-20px)';
           
           setTimeout(() => {
-            // Fly to the slot position
             flyingElement.style.transform = 'scale(0.6) rotate(0deg) translateY(-100px) translateX(-50px)';
             flyingElement.style.opacity = '0.8';
             
@@ -106,7 +101,12 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999]" role="dialog" aria-modal="true" aria-label="Pick an item">
+    <div
+      className="fixed inset-0 z-[999]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Pick an item"
+    >
       {/* Backdrop */}
       <button
         aria-hidden="true"
@@ -120,14 +120,14 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
           <div className="flex-1"></div>
-                                           <Button
-              ref={firstFocusable as any}
-              onClick={onClose}
-              className="text-black bg-transparent hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-4xl"
-              aria-label="Close item picker"
-            >
-              ✕
-            </Button>
+          <Button
+            ref={firstFocusable as any}
+            onClick={onClose}
+            className="text-black bg-transparent hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-4xl"
+            aria-label="Close item picker"
+          >
+            ✕
+          </Button>
         </div>
 
         {/* Content */}
@@ -138,112 +138,95 @@ export default function ItemPickerModal({ open, onClose, items, onSelect, produc
             <>
               <div className="grid grid-cols-2 gap-3">
                 {products && products.length > 0 ? (
-                  // Use original Shopify products with ProductCard
                   products.map((product) => (
-                                                               <div
-                        key={product.id}
-                        className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
-                      >
-                       <div onClick={(e) => handleProductClick(e, product)}>
-                         <ProductCard 
-                           product={product}
-                           onFavoriteToggled={handleFavoriteToggled}
-                         />
-                       </div>
-                       <div className="p-2 border-t border-gray-100">
-                         <Button 
-                           onClick={(e) => handleProductClick(e, product)}
-                           size="sm"
-                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
-                         >
-                           Select
-                         </Button>
-                       </div>
-                     </div>
-                  ))
-                ) : (
-                  // Fallback to custom display if no products
-                  items.map((item) => (
-                                                               <div
-                        key={item.id}
-                        className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
-                      >
-                       <div className="p-3">
-                         <div className="w-full h-28 overflow-hidden mb-2">
-                           <img
-                             src={item.imageUrl}
-                             alt={item.title}
-                             className="w-full h-full object-cover"
-                           />
-                         </div>
-                         <div className="text-sm font-medium line-clamp-2">{item.title}</div>
-                         <div className="text-xs text-gray-500 mt-1">
-                           {item.price && `$${item.price}`}
-                         </div>
-                       </div>
-                       <div className="p-2 border-t border-gray-100">
-                                                 <Button 
-                                                     onClick={(e) => {
-                             e.preventDefault();
-                             e.stopPropagation();
-                             
-                                                           // Create flying animation effect
-                              const productCard = (e.currentTarget as HTMLElement).closest('.product-card') as HTMLElement;
-                              const rect = productCard.getBoundingClientRect();
-                              
-                              // Create a flying element
-                              const flyingElement = document.createElement('div');
-                              flyingElement.style.position = 'fixed';
-                              flyingElement.style.left = `${rect.left}px`;
-                              flyingElement.style.top = `${rect.top}px`;
-                              flyingElement.style.width = `${rect.width}px`;
-                              flyingElement.style.height = `${rect.height}px`;
-                              flyingElement.style.zIndex = '9999';
-                              flyingElement.style.pointerEvents = 'none';
-                              flyingElement.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                              flyingElement.style.borderRadius = '12px';
-                              flyingElement.style.overflow = 'hidden';
-                              flyingElement.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
-                              flyingElement.style.backgroundColor = 'white';
-                              
-                              // Clone the entire product card content
-                              flyingElement.innerHTML = productCard.innerHTML;
-                             
-                             document.body.appendChild(flyingElement);
-                             
-                             // Start the flying animation
-                             setTimeout(() => {
-                               flyingElement.style.transform = 'scale(0.8) rotate(5deg)';
-                               flyingElement.style.boxShadow = '0 15px 35px rgba(0,0,0,0.4)';
-                               
-                               setTimeout(() => {
-                                 flyingElement.style.transform = 'scale(1.2) rotate(-5deg) translateY(-20px)';
-                                 
-                                 setTimeout(() => {
-                                   // Fly to the slot position
-                                   flyingElement.style.transform = 'scale(0.6) rotate(0deg) translateY(-100px) translateX(-50px)';
-                                   flyingElement.style.opacity = '0.8';
-                                   
-                                   setTimeout(() => {
-                                     document.body.removeChild(flyingElement);
-                                     onSelect(item);
-                                   }, 400);
-                                 }, 200);
-                               }, 150);
-                             }, 50);
-                           }}
+                    <div
+                      key={product.id}
+                      className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+                    >
+                      <div onClick={(e) => handleProductClick(e, product)}>
+                        <ProductCard 
+                          product={product}
+                          onFavoriteToggled={handleFavoriteToggled}
+                        />
+                      </div>
+                      <div className="p-2 border-t border-gray-100">
+                        <Button 
+                          onClick={(e) => handleProductClick(e, product)}
                           size="sm"
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
                         >
                           Select
                         </Button>
-                       </div>
-                     </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+                    >
+                      <div className="p-3">
+                        <div className="w-full h-28 overflow-hidden mb-2">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="text-sm font-medium line-clamp-2">{item.title}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {item.price && `$${item.price}`}
+                        </div>
+                      </div>
+                      <div className="p-2 border-t border-gray-100">
+                        <Button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const productCard = (e.currentTarget as HTMLElement).closest('.product-card') as HTMLElement;
+                            const rect = productCard.getBoundingClientRect();
+                            const flyingElement = document.createElement('div');
+                            flyingElement.style.position = 'fixed';
+                            flyingElement.style.left = `${rect.left}px`;
+                            flyingElement.style.top = `${rect.top}px`;
+                            flyingElement.style.width = `${rect.width}px`;
+                            flyingElement.style.height = `${rect.height}px`;
+                            flyingElement.style.zIndex = '9999';
+                            flyingElement.style.pointerEvents = 'none';
+                            flyingElement.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                            flyingElement.style.borderRadius = '12px';
+                            flyingElement.style.overflow = 'hidden';
+                            flyingElement.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+                            flyingElement.style.backgroundColor = 'white';
+                            flyingElement.innerHTML = productCard.innerHTML;
+                            document.body.appendChild(flyingElement);
+                            setTimeout(() => {
+                              flyingElement.style.transform = 'scale(0.8) rotate(5deg)';
+                              flyingElement.style.boxShadow = '0 15px 35px rgba(0,0,0,0.4)';
+                              setTimeout(() => {
+                                flyingElement.style.transform = 'scale(1.2) rotate(-5deg) translateY(-20px)';
+                                setTimeout(() => {
+                                  flyingElement.style.transform = 'scale(0.6) rotate(0deg) translateY(-100px) translateX(-50px)';
+                                  flyingElement.style.opacity = '0.8';
+                                  setTimeout(() => {
+                                    document.body.removeChild(flyingElement);
+                                    onSelect(item);
+                                  }, 400);
+                                }, 200);
+                              }, 150);
+                            }, 50);
+                          }}
+                          size="sm"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+                        >
+                          Select
+                        </Button>
+                      </div>
+                    </div>
                   ))
                 )}
               </div>
-              
-              {/* Show More Button */}
               {hasNextPage && (
                 <div className="mt-6 text-center">
                   <Button

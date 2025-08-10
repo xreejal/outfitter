@@ -3,7 +3,12 @@ import ItemPickerModal from "../create/ItemPickerModal";
 import { Fit, Item } from "../../types";
 import { usePolls } from "../../contexts/PollsContext";
 import { useUser } from "../../contexts/UserContext";
-import { Button, useProductSearch, usePopularProducts } from "@shopify/shop-minis-react";
+import {
+  Button,
+  useProductSearch,
+  usePopularProducts,
+  useBuyerAttributes,
+} from "@shopify/shop-minis-react";
 
 // Category data structure
 const CATEGORIES = {
@@ -122,7 +127,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       p?.variants?.[0]?.price?.amount ??
       0;
 
-    const price = typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice) || 0;
+    const price =
+      typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice) || 0;
 
     return {
       id: String(p?.id ?? ""),
@@ -130,12 +136,17 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       imageUrl,
       price,
       merchant: String(p?.vendor ?? p?.merchant ?? "Unknown"),
-      category: (Array.isArray(p?.tags) && p.tags[0]) || p?.productType || p?.category || "",
+      category:
+        (Array.isArray(p?.tags) && p.tags[0]) ||
+        p?.productType ||
+        p?.category ||
+        "",
     };
   };
 
   // Get products for specific slot type
   const getProductsForSlot = (slotIndex: number) => {
+
     const slotProducts = [slot1Products, slot2Products, slot3Products][slotIndex];
     const slotList = Array.isArray(slotProducts) ? slotProducts : (slotProducts as any)?.nodes ?? [];
     
@@ -169,13 +180,18 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     return new Map(allItems.map((i) => [i.id, i] as const));
   }, [slot1Products, slot2Products, slot3Products, popularProducts]);
 
+
   const nameA = "A";
   const nameB = "B";
   const [desc, setDesc] = useState("");
   const [fitAIds, setFitAIds] = useState<string[]>(["", "", ""]);
   const [fitBIds, setFitBIds] = useState<string[]>(["", "", ""]);
 
-  const [picker, setPicker] = useState<{ open: boolean; col: "A" | "B"; idx: number }>({
+  const [picker, setPicker] = useState<{
+    open: boolean;
+    col: "A" | "B";
+    idx: number;
+  }>({
     open: false,
     col: "A",
     idx: 0,
@@ -202,6 +218,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     }
     
     // If this option is ahead, only show filled slots
+
     return filledCount;
   };
 
@@ -209,7 +226,10 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   const visibleSlotsB = getVisibleSlots(fitBIds, false);
 
   const canPublish = useMemo(
-    () => desc.trim().length > 0 && fitAIds.every(Boolean) && fitBIds.every(Boolean),
+    () =>
+      desc.trim().length > 0 &&
+      fitAIds.every(Boolean) &&
+      fitBIds.every(Boolean),
     [desc, fitAIds, fitBIds]
   );
 
@@ -222,10 +242,12 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       const next = [...fitAIds];
       next[picker.idx] = id;
       setFitAIds(next);
+      // console.log('Selected for Option A:', { slot: picker.idx, productId: id, allAIds: next });
     } else {
       const next = [...fitBIds];
       next[picker.idx] = id;
       setFitBIds(next);
+      // console.log('Selected for Option B:', { slot: picker.idx, productId: id, allBIds: next });
     }
     setPicker((prev) => ({ ...prev, open: false }));
     
@@ -259,11 +281,24 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     }, 800); // Delay to match the flying animation
   }
 
-  function publish() {
+  const handleGenderSelect = (gender: string) => {
+    setSelectedGender(gender);
+    setShowGenderPrompt(false);
+  };
+
+  async function publish() {
     if (!canPublish) return;
-    const fitA: Fit = { id: `fit_${Date.now()}_A`, name: nameA || "A", itemIds: fitAIds };
-    const fitB: Fit = { id: `fit_${Date.now()}_B`, name: nameB || "B", itemIds: fitBIds };
-    createPoll({ description: desc, fitA, fitB }, user.id);
+    const fitA: Fit = {
+      id: `fit_${Date.now()}_A`,
+      name: nameA || "A",
+      itemIds: fitAIds,
+    };
+    const fitB: Fit = {
+      id: `fit_${Date.now()}_B`,
+      name: nameB || "B",
+      itemIds: fitBIds,
+    };
+    await createPoll({ description: desc, fitA, fitB }, user.id);
     alert("Published!");
     navigate("/vote");
   }
@@ -312,7 +347,11 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         data-slot={slotInfo}
       >
         {item ? (
-          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+          <img
+            src={item.imageUrl}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="text-4xl text-white font-bold">{loadingAny ? "…" : "+"}</span>
         )}
@@ -564,4 +603,3 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     </div>
   );
 }
-

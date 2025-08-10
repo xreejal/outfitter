@@ -1,0 +1,7 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+- you don't have to import react: `import React from "react";` , this is a unused import error

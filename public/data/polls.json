@@ -17,5 +17,100 @@
     "status": "open",
     "votes": { "A": 3, "B": 4 },
     "voters": {}
+  },
+  {
+    "id": "poll_seed_002",
+    "authorId": "user_local",
+    "description": "Casual Friday vibes - which one?",
+    "fitA": {
+      "id": "fit_seed_C",
+      "name": "A",
+      "itemIds": ["item_003", "item_103", "item_203"]
+    },
+    "fitB": {
+      "id": "fit_seed_D",
+      "name": "B",
+      "itemIds": ["item_004", "item_104", "item_204"]
+    },
+    "createdAt": 1731086400000,
+    "status": "open",
+    "votes": { "A": 7, "B": 2 },
+    "voters": {}
+  },
+  {
+    "id": "poll_seed_003",
+    "authorId": "user_local",
+    "description": "Date night outfit - help me choose!",
+    "fitA": {
+      "id": "fit_seed_E",
+      "name": "A",
+      "itemIds": ["item_005", "item_105", "item_205"]
+    },
+    "fitB": {
+      "id": "fit_seed_F",
+      "name": "B",
+      "itemIds": ["item_006", "item_106", "item_206"]
+    },
+    "createdAt": 1731172800000,
+    "status": "open",
+    "votes": { "A": 5, "B": 8 },
+    "voters": {}
+  },
+  {
+    "id": "poll_seed_004",
+    "authorId": "user_local",
+    "description": "Gym or street style?",
+    "fitA": {
+      "id": "fit_seed_G",
+      "name": "A",
+      "itemIds": ["item_007", "item_107", "item_207"]
+    },
+    "fitB": {
+      "id": "fit_seed_H",
+      "name": "B",
+      "itemIds": ["item_008", "item_108", "item_208"]
+    },
+    "createdAt": 1731259200000,
+    "status": "open",
+    "votes": { "A": 12, "B": 6 },
+    "voters": {}
+  },
+  {
+    "id": "poll_seed_005",
+    "authorId": "user_local",
+    "description": "Beach day essentials - which combo?",
+    "fitA": {
+      "id": "fit_seed_I",
+      "name": "A",
+      "itemIds": ["item_009", "item_109", "item_209"]
+    },
+    "fitB": {
+      "id": "fit_seed_J",
+      "name": "B",
+      "itemIds": ["item_010", "item_110", "item_210"]
+    },
+    "createdAt": 1731345600000,
+    "status": "open",
+    "votes": { "A": 4, "B": 9 },
+    "voters": {}
+  },
+  {
+    "id": "poll_seed_006",
+    "authorId": "user_local",
+    "description": "Work meeting outfit - professional vs trendy",
+    "fitA": {
+      "id": "fit_seed_K",
+      "name": "A",
+      "itemIds": ["item_011", "item_111", "item_211"]
+    },
+    "fitB": {
+      "id": "fit_seed_L",
+      "name": "B",
+      "itemIds": ["item_012", "item_112", "item_212"]
+    },
+    "createdAt": 1731432000000,
+    "status": "open",
+    "votes": { "A": 6, "B": 11 },
+    "voters": {}
   }
 ]

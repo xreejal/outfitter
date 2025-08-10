@@ -8,12 +8,12 @@ export async function ensureSeedsLoaded(): Promise<void> {
   const loaders = [] as Array<Promise<void>>
 
   if (!localStorage.getItem(CATALOG_KEY)) {
-    loaders.push(fetch('/data/catalog.json').then(r => r.json()).then(data => {
+    loaders.push(fetch('/data/catalog2.json').then(r => r.json()).then(data => {
       localStorage.setItem(CATALOG_KEY, JSON.stringify(data))
     }))
   }
   if (!localStorage.getItem(POLLS_KEY)) {
-    loaders.push(fetch('/data/polls.json').then(r => r.json()).then(data => {
+    loaders.push(fetch('/data/polls2.json').then(r => r.json()).then(data => {
       localStorage.setItem(POLLS_KEY, JSON.stringify(data))
     }))
   }
@@ -23,7 +23,9 @@ export async function ensureSeedsLoaded(): Promise<void> {
     }))
   }
   if (!localStorage.getItem(SAVED_KEY)) {
-    localStorage.setItem(SAVED_KEY, JSON.stringify({ savedFits: [] }))
+    loaders.push(fetch('/data/saved.json').then(r => r.json()).then(data => {
+      localStorage.setItem(SAVED_KEY, JSON.stringify(data))
+    }))
   }
   if (!localStorage.getItem(USER_KEY)) {
     localStorage.setItem(USER_KEY, JSON.stringify({ id: 'user_local' }))
