@@ -9,6 +9,39 @@
   }
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-expand {
   animation: expand 200ms ease-out forwards;
 }
+@keyframes liquidBounce {
+  0% { transform: scale(0.9) translateY(10px); opacity: 0; }
+  50% { transform: scale(1.05) translateY(-3px); opacity: 1; }
+  70% { transform: scale(0.98) translateY(1px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes liquidFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-liquidBounce {
+  animation: liquidBounce 0.6s cubic-bezier(.34,1.56,.64,1) both,
+             liquidFloat 3s ease-in-out infinite;
+}
+
+.animate-liquidBounceSlow {
+  animation: liquidBounce 0.8s cubic-bezier(.34,1.56,.64,1) both,
+             liquidFloat 4s ease-in-out infinite;
+}
+
