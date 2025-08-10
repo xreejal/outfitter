@@ -8,7 +8,7 @@ export async function ensureSeedsLoaded(): Promise<void> {
   const loaders = [] as Array<Promise<void>>
 
   if (!localStorage.getItem(CATALOG_KEY)) {
-    loaders.push(fetch('/data/catalog.json').then(r => r.json()).then(data => {
+    loaders.push(fetch('/data/catalog2.json').then(r => r.json()).then(data => {
       localStorage.setItem(CATALOG_KEY, JSON.stringify(data))
     }))
   }

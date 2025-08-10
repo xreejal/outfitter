@@ -3,6 +3,7 @@ import { usePolls } from "../contexts/PollsContext";
 import { useCatalog } from "../contexts/CatalogContext";
 import { Item } from "../types";
 import { ArrowLeft } from "lucide-react";
+import { ProductCard, ProductCardSkeleton, useProducts } from "@shopify/shop-minis-react";
 export default function PollResults({
   pollId,
   navigate,
@@ -19,19 +20,19 @@ export default function PollResults({
     return itemIds.map(id => items.find(item => item.id === id)).filter(Boolean) as Item[];
   };
 
+  const buildProductGid = (id: string) =>
+    id.startsWith("gid://shopify/Product/") ? id : `gid://shopify/Product/${id}`;
+
   if (!poll) {
     return (
-      <div className="pt-6 pb-28 px-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center mb-3">
         <button
-          onClick={() => navigate?.("/")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+          onClick={() => navigate?.("/recents")}
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold flex-1 text-center">Poll not found.</h2>
-        <div className="w-12" />
-      </div>
+        <h2 className="text-xl font-semibold w-full text-center">Poll Not Found.</h2>
       </div>
     );
   }
@@ -42,17 +43,23 @@ export default function PollResults({
   const itemsA = getItemsByIds(poll.fitA.itemIds);
   const itemsB = getItemsByIds(poll.fitB.itemIds);
 
+  // Mock product fetching via SDK using GIDs derived from our item ids
+  const productIdsA = itemsA.map((i) => buildProductGid(i.id));
+  const productIdsB = itemsB.map((i) => buildProductGid(i.id));
+
+  const { products: productsA, loading: loadingA } = useProducts({ ids: productIdsA });
+  const { products: productsB, loading: loadingB } = useProducts({ ids: productIdsB });
+
   return (
     <div className="pt-6 pb-28 px-4">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center mb-3">
         <button
-          onClick={() => navigate?.("/")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+          onClick={() => navigate?.("/recents")}
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold flex-1 text-center">{poll.description}</h2>
-        <div className="w-12" />
+        <h2 className="text-xl font-semibold w-full text-center">{poll.description}</h2>
       </div>
 
       <div className="mb-4">
@@ -92,16 +99,17 @@ export default function PollResults({
           <div className="p-4">
             <h4 className="font-medium mb-4">{poll.fitA.name}</h4>
             <div className="grid grid-cols-2 gap-2">
-              {itemsA.map((item) => (
-                <div key={item.id} className="text-center">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title}
-                    className="w-full aspect-square object-cover rounded-lg mb-1"
-                  />
-                  <div className="text-xs text-gray-700 line-clamp-2">{item.title}</div>
-                  <div className="text-xs text-gray-500">${item.price}</div>
-                </div>
+              {loadingA && productIdsA.map((id) => (
+                <ProductCardSkeleton key={`sk-${id}`} />
+              ))}
+              {!loadingA && (productsA ?? []).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onFavoriteToggled={(isFavorited) => {
+                    console.log("Favorite toggled:", product.id, isFavorited);
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -112,16 +120,17 @@ export default function PollResults({
           <div className="p-4">
             <h4 className="font-medium mb-4">{poll.fitB.name}</h4>
             <div className="grid grid-cols-2 gap-2">
-              {itemsB.map((item) => (
-                <div key={item.id} className="text-center">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title}
-                    className="w-full aspect-square object-cover rounded-lg mb-1"
-                  />
-                  <div className="text-xs text-gray-700 line-clamp-2">{item.title}</div>
-                  <div className="text-xs text-gray-500">${item.price}</div>
-                </div>
+              {loadingB && productIdsB.map((id) => (
+                <ProductCardSkeleton key={`sk-${id}`} />
+              ))}
+              {!loadingB && (productsB ?? []).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onFavoriteToggled={(isFavorited) => {
+                    console.log("Favorite toggled:", product.id, isFavorited);
+                  }}
+                />
               ))}
             </div>
           </div>

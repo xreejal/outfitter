@@ -19,15 +19,14 @@ export default function Recents({
 
   return (
     <div className="pt-6 pb-28 px-4">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center mb-3">
         <button
           onClick={() => navigate?.("/")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold flex-1 text-center">Recents</h2>
-        <div className="w-12" />
+        <h2 className="text-xl font-semibold w-full text-center">Recents Polls</h2>
       </div>
       <div className="flex flex-col gap-3">
         {mine.map((p) => {

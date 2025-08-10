@@ -1,0 +1,51 @@
+[
+    {
+      "id": "10758403981505",
+      "title": "Oversized Wool Coat",
+      "imageUrl": "/create.png",
+      "price": 18000,
+      "merchant": "Acme",
+      "category": "outerwear"
+    },
+    {
+      "id": "7625335767249",
+      "title": "Oxford Shirt",
+      "imageUrl": "/landing.png",
+      "price": 6500,
+      "merchant": "Acme",
+      "category": "tops"
+    },
+    {
+      "id": "7130848002083",
+      "title": "Wide Chino",
+      "imageUrl": "/vote.png",
+      "price": 9000,
+      "merchant": "Acme",
+      "category": "bottoms"
+    },
+    {
+      "id": "10116322656568",
+      "title": "Puffer Jacket",
+      "imageUrl": "/recents.png",
+      "price": 15000,
+      "merchant": "Bravo",
+      "category": "outerwear"
+    },
+    {
+      "id": "7965604675628",
+      "title": "Crewneck Tee",
+      "imageUrl": "/saved.png",
+      "price": 2500,
+      "merchant": "Bravo",
+      "category": "tops"
+    },
+    {
+      "id": "7464817131587",
+      "title": "Relaxed Jeans",
+      "imageUrl": "/voted_screen.png",
+      "price": 8500,
+      "merchant": "Bravo",
+      "category": "bottoms"
+    }
+  ]
+  
