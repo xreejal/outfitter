@@ -432,14 +432,14 @@ export default function Vote({
   const [currentPoll, setCurrentPoll] = useState(() =>
     getNextOpenPollForUser(user.id)
   );
-  const [nextPoll, setNextPoll] = useState(() =>
-    getNextOpenPollForUser(user.id)
-  );
   const expandedRef = useRef<HTMLDivElement | null>(null);
 
+  // Ensure current poll syncs once providers finish loading
   useEffect(() => {
-    if (!nextPoll) setNextPoll(getNextOpenPollForUser(user.id));
-  }, [nextPoll, user.id, getNextOpenPollForUser]);
+    if (!currentPoll) {
+      setCurrentPoll(getNextOpenPollForUser(user.id));
+    }
+  }, [currentPoll, user.id, getNextOpenPollForUser]);
 
   // When switching tabs, auto-select that side and mark phase selected
   const [activeTab, setActiveTab] = useState<"A" | "B">("A");
@@ -489,9 +489,9 @@ export default function Vote({
   }
 
   function handleNext() {
-    // Collapse back to normal height and swap content without sliding the card
-    setCurrentPoll(nextPoll);
-    setNextPoll(getNextOpenPollForUser(user.id));
+    // Move to the next available poll (fresh lookup to avoid stale preloaded value)
+    const upcoming = getNextOpenPollForUser(user.id);
+    setCurrentPoll(upcoming);
     setSelectedSide(null);
     setPercentForSelected(0);
     setPhase("idle");
