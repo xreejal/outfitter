@@ -1,11 +1,15 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { usePolls } from "../contexts/PollsContext";
 import { useUser } from "../contexts/UserContext";
-import { useCatalog } from "../contexts/CatalogContext";
 import { useSaved } from "../contexts/SavedContext";
 import { useComments } from "../contexts/CommentsContext";
-import { Fit, Item } from "../types";
+import type { Fit, Poll } from "../types";
 import ExpandModal from "../components/ExpandModal";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+  useProducts,
+} from "@shopify/shop-minis-react";
 
 // Components
 function BackIcon() {
@@ -170,43 +174,73 @@ function HeaderRow({
   );
 }
 
+function buildProductGid(id: string): string {
+  return id.startsWith("gid://shopify/Product/")
+    ? id
+    : `gid://shopify/Product/${id}`;
+}
+
 function FitMediaStack({
   fit,
-  items,
   alignment,
   isExpanded,
 }: {
   fit: Fit;
-  items: Item[];
   alignment: "left" | "right";
   isExpanded?: boolean;
 }) {
+  const productIds = useMemo(
+    () => fit.itemIds.map((id) => buildProductGid(id)),
+    [fit.itemIds]
+  );
+  const { products, loading } = useProducts({ ids: productIds });
+
   if (isExpanded) {
     return (
       <div className="space-y-4">
-        {/* Big white box - main fit view */}
-        <div className="bg-white rounded-2xl aspect-square flex items-center justify-center">
-          <div className="text-zinc-400 text-sm">Main Fit View</div>
+        {/* Main fit view - larger grid */}
+        <div className="bg-white rounded-2xl p-3">
+          <div className="grid grid-cols-2 gap-2">
+            {(loading ? productIds : (products ?? []).map((p) => p.id))
+              .slice(0, 4)
+              .map((id, idx) => (
+                <div
+                  key={`${String(id)}-${idx}`}
+                  className="overflow-hidden rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {loading ? (
+                    <ProductCardSkeleton />
+                  ) : (
+                    <ProductCard
+                      product={(products ?? []).find((p) => p.id === id)!}
+                      onFavoriteToggled={() => {}}
+                    />
+                  )}
+                </div>
+              ))}
+          </div>
         </div>
-        {/* Horizontal carousel of item thumbnails */}
+        {/* Horizontal carousel of product cards */}
         <div className="flex gap-2 overflow-x-auto snap-x pb-2">
-          {fit.itemIds.map((itemId) => {
-            const item = items.find((i) => i.id === itemId);
-            return (
+          {(loading ? productIds : (products ?? []).map((p) => p.id)).map(
+            (id, idx) => (
               <div
-                key={itemId}
-                className="flex-none w-16 h-16 bg-white rounded-lg snap-center overflow-hidden"
+                key={`c-${String(id)}-${idx}`}
+                className="flex-none w-40 snap-center"
+                onClick={(e) => e.stopPropagation()}
               >
-                {item && (
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
+                {loading ? (
+                  <ProductCardSkeleton />
+                ) : (
+                  <ProductCard
+                    product={(products ?? []).find((p) => p.id === id)!}
+                    onFavoriteToggled={() => {}}
                   />
                 )}
               </div>
-            );
-          })}
+            )
+          )}
         </div>
       </div>
     );
@@ -218,29 +252,24 @@ function FitMediaStack({
       {/* Title pinned */}
       <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
       <div className="grid grid-cols-2 gap-2 pt-12">
-        {fit.itemIds.slice(0, 4).map((itemId) => {
-          const item = items.find((i) => i.id === itemId);
-          return (
+        {(loading ? productIds : (products ?? []).map((p) => p.id))
+          .slice(0, 4)
+          .map((id, idx) => (
             <div
-              key={itemId}
-              className="aspect-[3/4] bg-white rounded-lg overflow-hidden relative"
+              key={`${String(id)}-${idx}`}
+              className="rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              {item && (
-                <>
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Item name overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] px-1 py-0.5 rounded-b-lg">
-                    <div className="truncate">{item.title}</div>
-                  </div>
-                </>
+              {loading ? (
+                <ProductCardSkeleton />
+              ) : (
+                <ProductCard
+                  product={(products ?? []).find((p) => p.id === id)!}
+                  onFavoriteToggled={() => {}}
+                />
               )}
             </div>
-          );
-        })}
+          ))}
       </div>
     </div>
   );
@@ -283,7 +312,6 @@ function FitSelectors({
 function BattleCard({
   side,
   fit,
-  items,
   pollId,
   mediaAlignment,
   isSelected,
@@ -293,7 +321,6 @@ function BattleCard({
 }: {
   side: "A" | "B";
   fit: Fit;
-  items: Item[];
   pollId: string;
   mediaAlignment: "left" | "right";
   isSelected: boolean;
@@ -334,15 +361,15 @@ function BattleCard({
 
   return (
     <div
+      onClick={onSelect}
       className={`
         rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
-      <div className="animate-fade-in pointer-events-none">
+      <div className="animate-fade-in">
         <FitMediaStack
           fit={fit}
-          items={items}
           alignment={mediaAlignment}
           isExpanded={isExpanded}
         />
@@ -396,12 +423,7 @@ function BattleCard({
         </button>
       </div>
 
-      {/* Full-card tap target above content but below action buttons */}
-      <button
-        onClick={onSelect}
-        className="absolute inset-0 z-10 rounded-xl"
-        aria-label={`Select fit ${side}`}
-      />
+      {/* Removed full-card overlay to allow ProductCard interactions */}
 
       <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)}>
         <div className="p-4 space-y-4">
@@ -473,7 +495,6 @@ export default function Vote({
 }) {
   const { getNextOpenPollForUser, voteOnPoll } = usePolls();
   const user = useUser();
-  const { items } = useCatalog();
 
   const [selectedSide, setSelectedSide] = useState<"A" | "B" | null>("A");
   const [phase, setPhase] = useState<
@@ -489,6 +510,7 @@ export default function Vote({
   const [currentPoll, setCurrentPoll] = useState<
     ReturnType<typeof Object> | any
   >(null);
+  const [resultPoll, setResultPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -501,12 +523,12 @@ export default function Vote({
   // Ensure current poll syncs once providers finish loading
   useEffect(() => {
     (async () => {
-      if (!currentPoll) {
+      if (!currentPoll && phase !== "results") {
         const next = await getNextOpenPollForUser(user.id);
         setCurrentPoll(next ?? null);
       }
     })();
-  }, [currentPoll, user.id, getNextOpenPollForUser]);
+  }, [currentPoll, phase, user.id, getNextOpenPollForUser]);
 
   // When switching tabs, auto-select that side and mark phase selected
   const [activeTab, setActiveTab] = useState<"A" | "B">("A");
@@ -550,6 +572,7 @@ export default function Vote({
         (updated.votes[selectedSide] / newTotal) * 100
       );
       setPercentForSelected(percent);
+      setResultPoll(updated);
       setPhase("results");
     }
   }
@@ -557,12 +580,15 @@ export default function Vote({
   async function handleNext() {
     const upcoming = await getNextOpenPollForUser(user.id);
     setCurrentPoll(upcoming ?? null);
+    setResultPoll(null);
     setSelectedSide(null);
     setPercentForSelected(0);
     setPhase("idle");
   }
 
-  if (!currentPoll) {
+  const isResultsPhase = phase === "results";
+
+  if (!currentPoll && !isResultsPhase) {
     return (
       <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-3 pb-24">
         <HeaderRow
@@ -579,8 +605,6 @@ export default function Vote({
     );
   }
 
-  const isResultsPhase = phase === "results";
-
   return (
     <div className="min-h-[100dvh] bg-zinc-950 px-4 pt-2 pb-20">
       {/* extra top padding */}
@@ -590,7 +614,6 @@ export default function Vote({
             <BattleCard
               side={activeTab}
               fit={activeTab === "A" ? currentPoll.fitA : currentPoll.fitB}
-              items={items}
               pollId={currentPoll.id}
               mediaAlignment={activeTab === "A" ? "left" : "right"}
               isSelected={selectedSide === activeTab}
@@ -603,9 +626,12 @@ export default function Vote({
         <div className="mt-2" ref={expandedRef}>
           <BattleCard
             side={selectedSide!}
-            fit={selectedSide === "A" ? currentPoll.fitA : currentPoll.fitB}
-            items={items}
-            pollId={currentPoll.id}
+            fit={
+              selectedSide === "A"
+                ? (resultPoll ?? currentPoll).fitA
+                : (resultPoll ?? currentPoll).fitB
+            }
+            pollId={(resultPoll ?? currentPoll).id}
             mediaAlignment={selectedSide === "A" ? "left" : "right"}
             isSelected={true}
             isExpanded={true}
