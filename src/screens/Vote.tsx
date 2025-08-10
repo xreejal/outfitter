@@ -64,12 +64,12 @@ function BottomActionBar({
   }, [isResults, percent]);
 
   return (
-    <div className="fixed bottom-4 inset-x-4 flex items-center gap-3">
+    <div className="bottom-4 fixed inset-x-4 flex items-center gap-3">
       {/* Back */}
       <button
         onClick={onBack}
         aria-label="Go back"
-        className="size-12 rounded-full glass-card text-white grid place-items-center border border-white/20"
+        className="place-items-center grid bg-zinc-800 rounded-full size-12 text-zinc-100"
       >
         <BackIcon />
       </button>
@@ -80,20 +80,20 @@ function BottomActionBar({
           <button
             disabled={!canSubmit}
             onClick={onSubmit}
-            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "glass-card text-white border border-white/20 hover:bg-white/10 active:bg-white/20" : "glass-card text-white/40 border border-white/10"}`}
+            className={`w-full h-12 rounded-full font-medium transition-colors ${canSubmit ? "bg-emerald-500 text-white active:bg-emerald-600" : "bg-zinc-700 text-zinc-400"}`}
           >
             Submit
           </button>
         ) : (
           <div className="relative animate-fade-in">
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-center text-xs text-white/80 whitespace-nowrap">
+            <div className="-top-5 left-1/2 absolute text-zinc-300 text-xs text-center whitespace-nowrap -translate-x-1/2">
               {isMajority
                 ? "You were in the majority"
                 : "You were not in the majority"}
             </div>
-            <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
+            <div className="relative bg-zinc-800 rounded-full h-12 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gray-600 transition-all duration-500"
+                className="bg-emerald-500 rounded-full h-full transition-all duration-500"
                 style={{ width: `${animatedWidth}%` }}
               />
               {/* Percentage pill to the right of the green bar */}
@@ -105,7 +105,7 @@ function BottomActionBar({
                   transform: "translate(-100%, -50%)",
                 }}
               >
-                <span className="px-2 py-0.5 rounded-full glass-card border border-white/20 text-white text-xs font-medium">
+                <span className="bg-zinc-700 px-2 py-0.5 rounded-full font-medium text-white text-xs">
                   {percent}%
                 </span>
               </div>
@@ -118,7 +118,7 @@ function BottomActionBar({
       {isResults ? (
         <button
           onClick={onNext}
-          className="h-12 w-16 rounded-xl glass-card text-white font-medium border border-white/20 hover:bg-white/10 active:bg-white/20"
+          className="bg-emerald-500 active:bg-emerald-600 rounded-xl w-16 h-12 font-medium text-white"
         >
           Next
         </button>
@@ -139,21 +139,29 @@ function HeaderRow({
   onCategoryChange: (category: string) => void;
 }) {
   return (
-    <div className="pt-2 pb-2">
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate?.("/")}
-          className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
-          aria-label="Go back"
-        >
-          ←
-        </button>
-      </div>
-      <div className="rounded-full glass-card text-white h-11 px-4 flex-1 flex items-center border border-white/20">
+    <div className="flex items-center gap-3 pt-2 pb-2">
+      {/* added vertical padding */}
+      <button
+        onClick={() => navigate?.("/")}
+        className="place-items-center grid bg-zinc-800 rounded-full size-10 text-zinc-100"
+        aria-label="Go back"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path
+            d="M10 12L6 8l4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      <div className="flex flex-1 items-center bg-zinc-800 px-4 rounded-full h-11 text-zinc-100">
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="bg-transparent text-white w-full outline-none"
+          className="bg-transparent outline-none w-full text-zinc-100"
         >
           <option value="all">All categories</option>
           <option value="streetwear">Streetwear</option>
@@ -191,14 +199,14 @@ function FitMediaStack({
     return (
       <div className="space-y-4">
         {/* Main fit view - larger grid */}
-        <div className="bg-white rounded-2xl p-3">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white p-3 rounded-2xl">
+          <div className="gap-2 grid grid-cols-2">
             {(loading ? productIds : (products ?? []).map((p: any) => p.id))
               .slice(0, 4)
               .map((id: string, idx: number) => (
                 <div
                   key={`${String(id)}-${idx}`}
-                  className="overflow-hidden rounded-lg"
+                  className="rounded-lg overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {loading ? (
@@ -214,7 +222,7 @@ function FitMediaStack({
           </div>
         </div>
         {/* Horizontal carousel of product cards */}
-        <div className="flex gap-2 overflow-x-auto snap-x pb-2">
+        <div className="flex gap-2 pb-2 overflow-x-auto snap-x">
           {(loading ? productIds : (products ?? []).map((p: any) => p.id)).map(
             (id: string, idx: number) => (
               <div
@@ -242,8 +250,8 @@ function FitMediaStack({
   return (
     <div className="relative">
       {/* Title pinned */}
-      <div className="absolute top-3 left-3 z-[5] text-white text-base font-semibold">{`Fit ${fit.name}`}</div>
-      <div className="grid grid-cols-2 gap-2 pt-12">
+      <div className="top-3 left-3 z-[5] absolute font-semibold text-white text-base">{`Fit ${fit.name}`}</div>
+      <div className="gap-2 grid grid-cols-2 pt-12">
         {(loading ? productIds : (products ?? []).map((p: any) => p.id))
           .slice(0, 4)
           .map((id: string, idx: number) => (
@@ -285,8 +293,8 @@ function FitSelectors({
         aria-pressed={isActive}
         className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-300 ${
           isActive
-            ? "bg-gray-700 text-white opacity-100"
-            : "glass-card text-white/80 opacity-90 border border-white/20"
+            ? "bg-emerald-600 text-white opacity-100"
+            : "bg-zinc-800/70 text-zinc-300 opacity-90"
         }`}
       >
         {`Fit ${side}`}
@@ -294,7 +302,7 @@ function FitSelectors({
     );
   };
   return (
-    <div className="fixed inset-x-4 bottom-24 flex gap-2">
+    <div className="bottom-24 fixed inset-x-4 flex gap-2">
       <Button side="A" />
       <Button side="B" />
     </div>
@@ -355,7 +363,7 @@ function BattleCard({
     <div
       onClick={onSelect}
       className={`
-        rounded-xl glass-card border border-white/20 p-3 relative transition-all duration-300 ${isExpanded ? "h-[75dvh]" : "h-[68dvh]"}
+        rounded-xl bg-zinc-800 p-3 relative transition-all duration-300 ${isExpanded ? "h-[82dvh]" : "h-[75dvh]"}
         ${!isSelected && !isExpanded ? "scale-95" : ""}
       `}
     >
@@ -372,25 +380,20 @@ function BattleCard({
         className={`absolute ${actionRowPosition} z-20 flex items-center gap-2`}
       >
         <button
-          onClick={async (e) => {
+          onClick={(e) => {
             e.stopPropagation();
-            await toggleSave(pollId, fit.id, side);
+            toggleSave(pollId, fit.id, side);
           }}
-          className={`h-10 w-10 grid place-items-center active:scale-95 transition-all duration-200 rounded-full ${
-            saved 
-              ? "bg-gray-600 text-white shadow-lg shadow-gray-600/25" 
-              : "text-white hover:bg-white/10 glass-card border border-white/20"
-          }`}
-          aria-label={saved ? "Unsave fit" : "Save fit"}
+          className="place-items-center grid w-10 h-10 text-zinc-100 active:scale-95 transition-transform"
+          aria-label="Save fit"
         >
           <svg
             width="20"
             height="20"
             viewBox="0 0 16 16"
             fill={saved ? "currentColor" : "none"}
-            stroke="currentColor"
+            stroke="white"
             strokeWidth="1.6"
-            className="transition-all duration-200"
           >
             <path d="M3 5v8l5-3 5 3V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" />
           </svg>
@@ -400,7 +403,7 @@ function BattleCard({
             e.stopPropagation();
             setExpandOpen(true);
           }}
-          className="h-10 w-10 grid place-items-center text-white active:scale-95 transition-transform glass-card border border-white/20"
+          className="place-items-center grid w-10 h-10 text-zinc-100 active:scale-95 transition-transform"
           aria-label="Expand fit"
         >
           <svg
@@ -423,31 +426,31 @@ function BattleCard({
       {/* Removed full-card overlay to allow ProductCard interactions */}
 
       <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)}>
-        <div className="p-4 space-y-4">
-          <div className="text-white text-base font-semibold">Comments</div>
+        <div className="space-y-4 p-4">
+          <div className="font-semibold text-white text-base">Comments</div>
           <div className="space-y-2">
             {comments.map((c) => (
               <div
                 key={c.id}
-                className="text-sm text-white glass-card border border-white/20 rounded-lg p-2"
+                className="bg-zinc-800/50 p-2 rounded-lg text-zinc-200 text-sm"
               >
                 {c.body}
               </div>
             ))}
             {comments.length === 0 && (
-              <div className="text-sm text-white/70">No comments yet.</div>
+              <div className="text-zinc-400 text-sm">No comments yet.</div>
             )}
           </div>
           <div className="flex gap-2">
             <input
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 glass-card text-white rounded-lg px-3 py-2 outline-none border border-white/20"
+              className="flex-1 bg-zinc-800 px-3 py-2 rounded-lg outline-none text-white"
               placeholder="Add a comment"
             />
             <button
               onClick={submitComment}
-              className="px-3 py-2 rounded-lg bg-gray-700 text-white"
+              className="bg-emerald-600 px-3 py-2 rounded-lg text-white"
             >
               Post
             </button>
@@ -461,7 +464,7 @@ function BattleCard({
 function VersusBadge() {
   return (
     <div className="flex justify-center my-0.5">
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold text-white/90 bg-white/10 tracking-wide">
+      <span className="bg-white/10 px-2 py-0.5 rounded-full font-semibold text-white/90 text-xs tracking-wide">
         versus
       </span>
     </div>
@@ -471,12 +474,12 @@ function VersusBadge() {
 function ResultsPercentBar({ percent }: { percent: number }) {
   return (
     <div className="flex-1 max-w-[70%]">
-      <div className="rounded-full glass-card border border-white/20 h-12 relative overflow-hidden">
+      <div className="relative bg-zinc-800 rounded-full h-12 overflow-hidden">
         <div
-          className="h-full rounded-full bg-gray-600 transition-all duration-500"
+          className="bg-emerald-500 rounded-full h-full transition-all duration-500"
           style={{ width: `${percent}%` }}
         />
-        <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
+        <div className="absolute inset-0 flex justify-center items-center font-medium text-white">
           {percent}%
         </div>
       </div>
@@ -634,14 +637,14 @@ export default function Vote({
 
   if (!currentPoll && !isResultsPhase) {
     return (
-      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-3 pb-24">
+      <div className="bg-zinc-950 px-4 pt-3 pb-24 min-h-[100dvh]">
         <HeaderRow
           navigate={navigate}
           category="all"
           onCategoryChange={(category) => {}}
         />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-white/70 text-center">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <p className="text-zinc-400 text-center">
             No open battles. Create one!
           </p>
         </div>
@@ -650,25 +653,8 @@ export default function Vote({
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-[100dvh] px-4 pt-2 pb-32">
-      {/* Poll Description Header */}
-      <div className="py-3 px-1">
-        <div className="flex items-center mb-3">
-          <button
-            onClick={() => navigate?.("/")}
-            className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
-            aria-label="Go back"
-          >
-            ←
-          </button>
-        </div>
-        <div className="text-center">
-          <h2 className="text-white text-lg font-medium">
-            {currentPoll?.description || "Vote on this outfit"}
-          </h2>
-        </div>
-      </div>
-      
+    <div className="bg-zinc-950 px-4 pt-2 pb-20 min-h-[100dvh]">
+      {/* extra top padding */}
       {!isResultsPhase ? (
         <>
           <div className="mt-2">
@@ -684,26 +670,7 @@ export default function Vote({
           </div>
         </>
       ) : (
-        <>
-          {/* Poll Description Header for Results */}
-          <div className="py-3 px-1">
-            <div className="flex items-center mb-3">
-              <button
-                onClick={() => navigate?.("/")}
-                className="glass-card border border-white/20 hover:bg-white/10 px-2 py-1 rounded-lg text-sm text-white/70 hover:text-white transition-colors"
-                aria-label="Go back"
-              >
-                ←
-              </button>
-            </div>
-            <div className="text-center">
-              <h2 className="text-white text-lg font-medium">
-                {(resultPoll ?? currentPoll)?.description || "Vote on this outfit"}
-              </h2>
-            </div>
-          </div>
-          
-          <div className="mt-2" ref={expandedRef}>
+        <div className="mt-2" ref={expandedRef}>
           <BattleCard
             side={selectedSide!}
             fit={
@@ -717,8 +684,7 @@ export default function Vote({
             isExpanded={true}
             onSelect={() => {}}
           />
-          </div>
-        </>
+        </div>
       )}
 
       {!isResultsPhase && (
