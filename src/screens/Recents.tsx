@@ -26,7 +26,7 @@ export default function Recents({
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold w-full text-center">Recents Polls</h2>
+        <h2 className="text-xl font-semibold w-full text-center">Recent Polls</h2>
       </div>
       <div className="flex flex-col gap-3">
         {mine.map((p) => {
