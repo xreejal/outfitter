@@ -15,15 +15,15 @@ export default function Saved({
     [saved]
   );
   return (
-    <div className="pt-6 pb-28 px-4">
+    <div className="px-4 pt-6 pb-28">
       <div className="flex items-center mb-3">
         <button
           onClick={() => navigate?.("/")}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors absolute left-4 z-10"
+          className="left-4 z-10 absolute flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm transition-colors"
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold w-full text-center">Saved Fits</h2>
+        <h2 className="w-full font-semibold text-xl text-center">Saved Fits</h2>
       </div>
       <div className="flex flex-col gap-3">
         {savedEntries.map((entry) => (
@@ -50,15 +50,15 @@ function SavedFit({ entry }: { entry: SavedEntry }) {
   const { products, loading } = useProducts({ ids: productIds });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
       <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-medium">{entry.fit.name}</div>
-          <div className="text-xs text-gray-500">Saved: {new Date(entry.savedAt).toLocaleDateString()}</div>
+        <div className="flex justify-between items-center mb-2">
+          <div className="font-medium text-sm">{entry.fit.name}</div>
+          <div className="text-gray-500 text-xs">Saved: {new Date(entry.savedAt).toLocaleDateString()}</div>
         </div>
-        <div className="text-xs text-gray-500 mb-3">by {entry.authorId}</div>
+        <div className="mb-3 text-gray-500 text-xs">by {entry.authorId}</div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="gap-2 grid grid-cols-2">
           {loading && productIds.map((id) => <ProductCardSkeleton key={`sk-${id}`} />)}
           {!loading && (products ?? []).map((product: any) => (
             <ProductCard
