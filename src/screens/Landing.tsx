@@ -816,7 +816,7 @@ export default function Landing({
             <span className="typing-line typing-line-1">VOTE THE BEST</span>
             <span className="typing-line typing-line-2">OUTFITS</span>
           </h1>
-          
+
           {/* FAB Menu positioned below title */}
           <FabMenu navigate={navigate} />
         </div>
