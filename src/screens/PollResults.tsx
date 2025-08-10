@@ -1,9 +1,11 @@
 import { useMemo, useEffect, useState } from "react";
 import { usePolls } from "../contexts/PollsContext";
-import { useCatalog } from "../contexts/CatalogContext";
-import { Item } from "../types";
 import { ArrowLeft } from "lucide-react";
-import { ProductCard, ProductCardSkeleton, useProducts } from "@shopify/shop-minis-react";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+  useProducts,
+} from "@shopify/shop-minis-react";
 export default function PollResults({
   pollId,
   navigate,
@@ -12,16 +14,16 @@ export default function PollResults({
   navigate?: (path: string) => void;
 }) {
   const { polls } = usePolls();
-  const { items } = useCatalog();
-  
-  const poll = useMemo(() => polls.find(p => p.id === pollId), [polls, pollId]);
-  
-  const getItemsByIds = (itemIds: string[]): Item[] => {
-    return itemIds.map(id => items.find(item => item.id === id)).filter(Boolean) as Item[];
-  };
+
+  const poll = useMemo(
+    () => polls.find((p) => p.id === pollId),
+    [polls, pollId]
+  );
 
   const buildProductGid = (id: string) =>
-    id.startsWith("gid://shopify/Product/") ? id : `gid://shopify/Product/${id}`;
+    id.startsWith("gid://shopify/Product/")
+      ? id
+      : `gid://shopify/Product/${id}`;
 
   if (!poll) {
     return (
@@ -32,7 +34,9 @@ export default function PollResults({
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold w-full text-center">Poll Not Found.</h2>
+        <h2 className="text-xl font-semibold w-full text-center">
+          Poll Not Found.
+        </h2>
       </div>
     );
   }
@@ -40,8 +44,6 @@ export default function PollResults({
   const total = poll.votes.A + poll.votes.B || 1;
   const aPct = Math.round((poll.votes.A / total) * 100);
   const bPct = 100 - aPct;
-  const itemsA = getItemsByIds(poll.fitA.itemIds);
-  const itemsB = getItemsByIds(poll.fitB.itemIds);
 
   // Animation states for smooth percentage bar
   const [animatedAPct, setAnimatedAPct] = useState(0);
@@ -55,12 +57,20 @@ export default function PollResults({
     return () => clearTimeout(timer);
   }, [aPct, bPct]);
 
-  // Mock product fetching via SDK using GIDs derived from our item ids
-  const productIdsA = itemsA.map((i) => buildProductGid(i.id));
-  const productIdsB = itemsB.map((i) => buildProductGid(i.id));
+  // Build GIDs directly from poll item ids (aligns with Vote.tsx behavior)
+  const productIdsA = poll.fitA.itemIds.map((id: string) =>
+    buildProductGid(id)
+  );
+  const productIdsB = poll.fitB.itemIds.map((id: string) =>
+    buildProductGid(id)
+  );
 
-  const { products: productsA, loading: loadingA } = useProducts({ ids: productIdsA });
-  const { products: productsB, loading: loadingB } = useProducts({ ids: productIdsB });
+  const { products: productsA, loading: loadingA } = useProducts({
+    ids: productIdsA,
+  });
+  const { products: productsB, loading: loadingB } = useProducts({
+    ids: productIdsB,
+  });
 
   return (
     <div className="pt-6 pb-28 px-4">
@@ -71,7 +81,9 @@ export default function PollResults({
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="text-xl font-semibold w-full text-center">{poll.description}</h2>
+        <h2 className="text-xl font-semibold w-full text-center">
+          {poll.description}
+        </h2>
       </div>
 
       <div className="mb-4">
@@ -84,34 +96,38 @@ export default function PollResults({
       {/* Single percentage bar */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-medium">{poll.fitA.name}: {aPct}%</span>
-          <span className="text-sm font-medium">{poll.fitB.name}: {bPct}%</span>
+          <span className="text-sm font-medium">
+            {poll.fitA.name}: {aPct}%
+          </span>
+          <span className="text-sm font-medium">
+            {poll.fitB.name}: {bPct}%
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden relative">
           <div className="h-full relative">
             {/* Left bar (blue) - grows from left */}
-            <div 
+            <div
               className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-1000 ease-out"
-              style={{ 
+              style={{
                 width: `${animatedAPct}%`,
-                transformOrigin: 'left'
+                transformOrigin: "left",
               }}
             />
             {/* Right bar (red) - grows from right */}
-            <div 
+            <div
               className="absolute right-0 top-0 h-full bg-red-500 transition-all duration-1000 ease-out"
-              style={{ 
+              style={{
                 width: `${animatedBPct}%`,
-                transformOrigin: 'right'
+                transformOrigin: "right",
               }}
             />
           </div>
           {/* Shimmer effect overlay */}
-          <div 
+          <div
             className="absolute top-0 left-0 h-full w-full opacity-30 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 transition-transform duration-1000 ease-out"
             style={{
-              transform: `translateX(${animatedAPct > 0 || animatedBPct > 0 ? '100%' : '-100%'}) skewX(-12deg)`,
-              transitionDelay: '200ms'
+              transform: `translateX(${animatedAPct > 0 || animatedBPct > 0 ? "100%" : "-100%"}) skewX(-12deg)`,
+              transitionDelay: "200ms",
             }}
           />
         </div>
@@ -127,18 +143,20 @@ export default function PollResults({
           <div className="p-4">
             <h4 className="font-medium mb-4">{poll.fitA.name}</h4>
             <div className="grid grid-cols-2 gap-2">
-              {loadingA && productIdsA.map((id) => (
-                <ProductCardSkeleton key={`sk-${id}`} />
-              ))}
-              {!loadingA && (productsA ?? []).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onFavoriteToggled={(isFavorited) => {
-                    console.log("Favorite toggled:", product.id, isFavorited);
-                  }}
-                />
-              ))}
+              {loadingA &&
+                productIdsA.map((id) => (
+                  <ProductCardSkeleton key={`sk-${id}`} />
+                ))}
+              {!loadingA &&
+                (productsA ?? []).map((product: any) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onFavoriteToggled={(isFavorited: boolean) => {
+                      console.log("Favorite toggled:", product.id, isFavorited);
+                    }}
+                  />
+                ))}
             </div>
           </div>
         </div>
@@ -148,18 +166,20 @@ export default function PollResults({
           <div className="p-4">
             <h4 className="font-medium mb-4">{poll.fitB.name}</h4>
             <div className="grid grid-cols-2 gap-2">
-              {loadingB && productIdsB.map((id) => (
-                <ProductCardSkeleton key={`sk-${id}`} />
-              ))}
-              {!loadingB && (productsB ?? []).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onFavoriteToggled={(isFavorited) => {
-                    console.log("Favorite toggled:", product.id, isFavorited);
-                  }}
-                />
-              ))}
+              {loadingB &&
+                productIdsB.map((id) => (
+                  <ProductCardSkeleton key={`sk-${id}`} />
+                ))}
+              {!loadingB &&
+                (productsB ?? []).map((product: any) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onFavoriteToggled={(isFavorited: boolean) => {
+                      console.log("Favorite toggled:", product.id, isFavorited);
+                    }}
+                  />
+                ))}
             </div>
           </div>
         </div>
