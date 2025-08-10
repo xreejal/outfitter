@@ -3,6 +3,7 @@ import { usePolls } from "../contexts/PollsContext";
 import { useUser } from "../contexts/UserContext";
 import { useCatalog } from "../contexts/CatalogContext";
 import { useSaved } from "../contexts/SavedContext";
+import { useComments } from "../contexts/CommentsContext";
 import { Fit, Item } from "../types";
 import ExpandModal from "../components/ExpandModal";
 
@@ -301,10 +302,35 @@ function BattleCard({
   onSelect: () => void;
 }) {
   const { isSaved, toggleSave } = useSaved();
+  const { listComments, addComment } = useComments();
   const saved = isSaved(pollId, fit.id);
   const [expandOpen, setExpandOpen] = useState(false);
+  const [comments, setComments] = useState<
+    Array<{ id: string; body: string; author_id: string; created_at: string }>
+  >([]);
+  const [newComment, setNewComment] = useState("");
 
   const actionRowPosition = "top-2 right-2";
+
+  useEffect(() => {
+    if (!expandOpen) return;
+    (async () => {
+      try {
+        const list = await listComments(fit.id);
+        setComments(list);
+      } catch {}
+    })();
+  }, [expandOpen, fit.id, listComments]);
+
+  async function submitComment() {
+    const body = newComment.trim();
+    if (!body) return;
+    try {
+      const c = await addComment(fit.id, "user_local", body);
+      setComments((prev) => [...prev, c]);
+      setNewComment("");
+    } catch {}
+  }
 
   return (
     <div
@@ -377,7 +403,38 @@ function BattleCard({
         aria-label={`Select fit ${side}`}
       />
 
-      <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)} />
+      <ExpandModal open={expandOpen} onClose={() => setExpandOpen(false)}>
+        <div className="p-4 space-y-4">
+          <div className="text-white text-base font-semibold">Comments</div>
+          <div className="space-y-2">
+            {comments.map((c) => (
+              <div
+                key={c.id}
+                className="text-sm text-zinc-200 bg-zinc-800/50 rounded-lg p-2"
+              >
+                {c.body}
+              </div>
+            ))}
+            {comments.length === 0 && (
+              <div className="text-sm text-zinc-400">No comments yet.</div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="flex-1 bg-zinc-800 text-white rounded-lg px-3 py-2 outline-none"
+              placeholder="Add a comment"
+            />
+            <button
+              onClick={submitComment}
+              className="px-3 py-2 rounded-lg bg-emerald-600 text-white"
+            >
+              Post
+            </button>
+          </div>
+        </div>
+      </ExpandModal>
     </div>
   );
 }
@@ -429,16 +486,26 @@ export default function Vote({
     | "entering"
   >("selected");
   const [percentForSelected, setPercentForSelected] = useState(0);
-  const [currentPoll, setCurrentPoll] = useState(() =>
-    getNextOpenPollForUser(user.id)
-  );
+  const [currentPoll, setCurrentPoll] = useState<
+    ReturnType<typeof Object> | any
+  >(null);
+
+  useEffect(() => {
+    (async () => {
+      const first = await getNextOpenPollForUser(user.id);
+      setCurrentPoll(first ?? null);
+    })();
+  }, [user.id, getNextOpenPollForUser]);
   const expandedRef = useRef<HTMLDivElement | null>(null);
 
   // Ensure current poll syncs once providers finish loading
   useEffect(() => {
-    if (!currentPoll) {
-      setCurrentPoll(getNextOpenPollForUser(user.id));
-    }
+    (async () => {
+      if (!currentPoll) {
+        const next = await getNextOpenPollForUser(user.id);
+        setCurrentPoll(next ?? null);
+      }
+    })();
   }, [currentPoll, user.id, getNextOpenPollForUser]);
 
   // When switching tabs, auto-select that side and mark phase selected
@@ -471,27 +538,25 @@ export default function Vote({
     setPhase("selected");
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!selectedSide || !currentPoll) return;
 
     setPhase("submitting");
 
-    const updated = voteOnPoll(currentPoll.id, selectedSide, user.id);
+    const updated = await voteOnPoll(currentPoll.id, selectedSide, user.id);
     if (updated) {
       const newTotal = updated.votes.A + updated.votes.B || 1;
       const percent = Math.round(
         (updated.votes[selectedSide] / newTotal) * 100
       );
       setPercentForSelected(percent);
-      // Enter results (expanded height) without moving the card container
       setPhase("results");
     }
   }
 
-  function handleNext() {
-    // Move to the next available poll (fresh lookup to avoid stale preloaded value)
-    const upcoming = getNextOpenPollForUser(user.id);
-    setCurrentPoll(upcoming);
+  async function handleNext() {
+    const upcoming = await getNextOpenPollForUser(user.id);
+    setCurrentPoll(upcoming ?? null);
     setSelectedSide(null);
     setPercentForSelected(0);
     setPhase("idle");

@@ -3,9 +3,17 @@ import ItemPickerModal from "../create/ItemPickerModal";
 import { Fit, Item } from "../../types";
 import { usePolls } from "../../contexts/PollsContext";
 import { useUser } from "../../contexts/UserContext";
-import { Button, useProductSearch, usePopularProducts } from "@shopify/shop-minis-react";
+import {
+  Button,
+  useProductSearch,
+  usePopularProducts,
+} from "@shopify/shop-minis-react";
 
-export default function Create({ navigate }: { navigate: (path: string) => void }) {
+export default function Create({
+  navigate,
+}: {
+  navigate: (path: string) => void;
+}) {
   const { createPoll } = usePolls();
   const user = useUser();
 
@@ -15,7 +23,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     loading: loadingOuter,
     error: errorOuter,
   } = useProductSearch({
-    query: 'overcoat shirt jacket coat',
+    query: "overcoat shirt jacket coat",
     first: 5,
   });
 
@@ -24,7 +32,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     loading: loadingTop,
     error: errorTop,
   } = useProductSearch({
-    query: 'tshirt t-shirt inner undershirt',
+    query: "tshirt t-shirt inner undershirt",
     first: 5,
   });
 
@@ -33,20 +41,21 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     loading: loadingBottom,
     error: errorBottom,
   } = useProductSearch({
-    query: 'trouser pants jeans',
+    query: "trouser pants jeans",
     first: 5,
   });
 
   // Fallback to popular products if search fails
-  const { products: popularProducts, loading: loadingPopular } = usePopularProducts();
+  const { products: popularProducts, loading: loadingPopular } =
+    usePopularProducts();
 
   // Debug logging
-  console.log('Product search debug:', {
+  console.log("Product search debug:", {
     outerAndShirts: outerAndShirts?.length || 0,
     teesAndInners: teesAndInners?.length || 0,
     trousers: trousers?.length || 0,
     popularProducts: popularProducts?.length || 0,
-    errors: { errorOuter, errorTop, errorBottom }
+    errors: { errorOuter, errorTop, errorBottom },
   });
 
   const productToItem = (p: any): Item => {
@@ -64,7 +73,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       p?.variants?.[0]?.price?.amount ??
       0;
 
-    const price = typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice) || 0;
+    const price =
+      typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice) || 0;
 
     return {
       id: String(p?.id ?? ""),
@@ -72,33 +82,47 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       imageUrl,
       price,
       merchant: String(p?.vendor ?? p?.merchant ?? "Unknown"),
-      category: (Array.isArray(p?.tags) && p.tags[0]) || p?.productType || p?.category || "",
+      category:
+        (Array.isArray(p?.tags) && p.tags[0]) ||
+        p?.productType ||
+        p?.category ||
+        "",
     };
   };
 
   // Combine all searched products into one list, fallback to popular products
   const allProducts: any[] = useMemo(() => {
-    const outerList = Array.isArray(outerAndShirts) ? outerAndShirts : (outerAndShirts as any)?.nodes ?? [];
-    const topList = Array.isArray(teesAndInners) ? teesAndInners : (teesAndInners as any)?.nodes ?? [];
-    const bottomList = Array.isArray(trousers) ? trousers : (trousers as any)?.nodes ?? [];
-    
-    console.log('Product lists:', { outerList, topList, bottomList });
-    
+    const outerList = Array.isArray(outerAndShirts)
+      ? outerAndShirts
+      : ((outerAndShirts as any)?.nodes ?? []);
+    const topList = Array.isArray(teesAndInners)
+      ? teesAndInners
+      : ((teesAndInners as any)?.nodes ?? []);
+    const bottomList = Array.isArray(trousers)
+      ? trousers
+      : ((trousers as any)?.nodes ?? []);
+
+    console.log("Product lists:", { outerList, topList, bottomList });
+
     // If no searched products found, use popular products as fallback
-    if (outerList.length === 0 && topList.length === 0 && bottomList.length === 0) {
-      console.log('No searched products found, using popular products fallback');
-      const popularList = Array.isArray(popularProducts) ? popularProducts : (popularProducts as any)?.nodes ?? [];
+    if (
+      outerList.length === 0 &&
+      topList.length === 0 &&
+      bottomList.length === 0
+    ) {
+      console.log(
+        "No searched products found, using popular products fallback"
+      );
+      const popularList = Array.isArray(popularProducts)
+        ? popularProducts
+        : ((popularProducts as any)?.nodes ?? []);
       return popularList;
     }
-    
+
     // Combine all searched products
-    const combined = [
-      ...outerList,
-      ...topList,
-      ...bottomList
-    ];
-    
-    console.log('Combined searched products:', combined.length);
+    const combined = [...outerList, ...topList, ...bottomList];
+
+    console.log("Combined searched products:", combined.length);
     return combined;
   }, [outerAndShirts, teesAndInners, trousers, popularProducts]);
 
@@ -118,17 +142,25 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   const [fitAIds, setFitAIds] = useState<string[]>(["", "", ""]);
   const [fitBIds, setFitBIds] = useState<string[]>(["", "", ""]);
 
-  const [picker, setPicker] = useState<{ open: boolean; col: "A" | "B"; idx: number }>({
+  const [picker, setPicker] = useState<{
+    open: boolean;
+    col: "A" | "B";
+    idx: number;
+  }>({
     open: false,
     col: "A",
     idx: 0,
   });
 
-  const loadingAny = loadingOuter || loadingTop || loadingBottom || loadingPopular;
+  const loadingAny =
+    loadingOuter || loadingTop || loadingBottom || loadingPopular;
   const errorAny = errorOuter || errorTop || errorBottom;
 
   const canPublish = useMemo(
-    () => desc.trim().length > 0 && fitAIds.every(Boolean) && fitBIds.every(Boolean),
+    () =>
+      desc.trim().length > 0 &&
+      fitAIds.every(Boolean) &&
+      fitBIds.every(Boolean),
     [desc, fitAIds, fitBIds]
   );
 
@@ -149,11 +181,19 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     setPicker((prev) => ({ ...prev, open: false }));
   }
 
-  function publish() {
+  async function publish() {
     if (!canPublish) return;
-    const fitA: Fit = { id: `fit_${Date.now()}_A`, name: nameA || "A", itemIds: fitAIds };
-    const fitB: Fit = { id: `fit_${Date.now()}_B`, name: nameB || "B", itemIds: fitBIds };
-    createPoll({ description: desc, fitA, fitB }, user.id);
+    const fitA: Fit = {
+      id: `fit_${Date.now()}_A`,
+      name: nameA || "A",
+      itemIds: fitAIds,
+    };
+    const fitB: Fit = {
+      id: `fit_${Date.now()}_B`,
+      name: nameB || "B",
+      itemIds: fitBIds,
+    };
+    await createPoll({ description: desc, fitA, fitB }, user.id);
     alert("Published!");
     navigate("/vote");
   }
@@ -167,7 +207,11 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         title={loadingAny ? "Loading products..." : undefined}
       >
         {item ? (
-          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+          <img
+            src={item.imageUrl}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="text-2xl">{loadingAny ? "…" : "+"}</span>
         )}
@@ -187,7 +231,9 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       </div>
 
       {loadingAny && (
-        <div className="mb-3 text-center text-sm text-gray-600">Searching for products…</div>
+        <div className="mb-3 text-center text-sm text-gray-600">
+          Searching for products…
+        </div>
       )}
       {errorAny && (
         <div className="mb-3 text-center text-sm text-red-600">
@@ -249,4 +295,3 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     </div>
   );
 }
-
