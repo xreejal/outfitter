@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import BottomNav from "./components/BottomNav";
 import Landing from "./screens/Landing";
 import Create from "./component/create/Create";
 import Vote from "./screens/Vote";
@@ -62,13 +61,8 @@ export function App() {
         <PollsProvider>
           <CommentsProvider>
             <SavedProvider>
-              <div
-                className={`min-h-screen bg-white ${route !== "/vote" ? "pb-20" : ""}`}
-              >
+              <div className="bg-white min-h-screen">
                 <Screen />
-                {route !== "/vote" && (
-                  <BottomNav route={route} navigate={navigate} />
-                )}
               </div>
             </SavedProvider>
           </CommentsProvider>

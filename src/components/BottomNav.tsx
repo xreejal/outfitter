@@ -20,17 +20,15 @@ export default function BottomNav({ route, navigate }: Props) {
       onClick={() => navigate(path)}
       className={`flex flex-col items-center justify-center flex-1 py-3 ${route === path ? "text-blue-600" : "text-gray-600"}`}
     >
-      {Icon ? <Icon size={20} /> : <div className="w-5 h-5 rounded-full bg-current" />}
-      <span className="text-xs mt-1">{label}</span>
+      {Icon ? <Icon size={20} /> : <div className="bg-current rounded-full w-5 h-5" />}
+      <span className="mt-1 text-xs">{label}</span>
     </button>
   );
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex">
+    <nav className="bottom-0 fixed inset-x-0 flex bg-white border-gray-200 border-t">
       <Item label="recents" path="/recents" icon={Clock} />
-      <Item label="create" path="/create" icon={Plus} />
       <Item label="saved" path="/saved" icon={Bookmark} />
-      <Item label="vote" path="/vote" icon={Vote} />
     </nav>
   );
 }
