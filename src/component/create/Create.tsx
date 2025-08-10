@@ -50,27 +50,33 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     products: outerwearProducts,
     loading: loadingOuterwear,
     error: errorOuterwear,
+    fetchMore: fetchMoreOuterwear,
+    hasNextPage: hasNextOuterwear,
   } = useProductSearch({
     query: getGenderSpecificQuery('coat jacket overcoat blazer'),
-    first: 8,
+    first: 10,
   });
 
   const {
     products: topProducts,
     loading: loadingTop,
     error: errorTop,
+    fetchMore: fetchMoreTop,
+    hasNextPage: hasNextTop,
   } = useProductSearch({
     query: getGenderSpecificQuery('tshirt t-shirt inner undershirt shirt'),
-    first: 8,
+    first: 10,
   });
 
   const {
     products: bottomProducts,
     loading: loadingBottom,
     error: errorBottom,
+    fetchMore: fetchMoreBottom,
+    hasNextPage: hasNextBottom,
   } = useProductSearch({
     query: getGenderSpecificQuery('pants trousers jeans leggings'),
-    first: 8,
+    first: 10,
   });
 
   // Fallback to popular products if search fails
@@ -140,6 +146,34 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         return bottomList.length > 0 ? bottomList : (Array.isArray(popularProducts) ? popularProducts : (popularProducts as any)?.nodes ?? []);
       default:
         return (Array.isArray(popularProducts) ? popularProducts : (popularProducts as any)?.nodes ?? []);
+    }
+  };
+
+  // Get fetchMore function for specific slot type
+  const getFetchMoreForSlot = (slotIndex: number) => {
+    switch (slotIndex) {
+      case 0: // First slot - outerwear
+        return fetchMoreOuterwear;
+      case 1: // Second slot - tops
+        return fetchMoreTop;
+      case 2: // Third slot - bottoms
+        return fetchMoreBottom;
+      default:
+        return () => Promise.resolve();
+    }
+  };
+
+  // Get hasNextPage for specific slot type
+  const getHasNextPageForSlot = (slotIndex: number) => {
+    switch (slotIndex) {
+      case 0: // First slot - outerwear
+        return hasNextOuterwear;
+      case 1: // Second slot - tops
+        return hasNextTop;
+      case 2: // Third slot - bottoms
+        return hasNextBottom;
+      default:
+        return false;
     }
   };
 
@@ -213,6 +247,35 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       // console.log('Selected for Option B:', { slot: picker.idx, productId: id, allBIds: next });
     }
     setPicker((prev) => ({ ...prev, open: false }));
+    
+    // Add enhanced slot "receive" animation
+    setTimeout(() => {
+      const slotElement = document.querySelector(`[data-slot="${picker.col}-${picker.idx}"]`) as HTMLElement;
+      if (slotElement) {
+        // Create a pulsing glow effect
+        slotElement.style.transform = 'scale(1.15)';
+        slotElement.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.4)';
+        slotElement.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        slotElement.style.borderColor = 'rgb(59, 130, 246)';
+        
+        // Add a subtle bounce effect
+        setTimeout(() => {
+          slotElement.style.transform = 'scale(0.95)';
+          slotElement.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.6)';
+          
+          setTimeout(() => {
+            slotElement.style.transform = 'scale(1.05)';
+            slotElement.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.4)';
+            
+            setTimeout(() => {
+              slotElement.style.transform = 'scale(1)';
+              slotElement.style.boxShadow = '';
+              slotElement.style.borderColor = '';
+            }, 200);
+          }, 150);
+        }, 300);
+      }
+    }, 800); // Delay to match the flying animation
   }
 
   function publish() {
@@ -229,7 +292,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     setShowGenderPrompt(false);
   };
 
-  const Slot = ({ id, onClick, isVisible }: { id?: string; onClick: () => void; isVisible: boolean }) => {
+  const Slot = ({ id, onClick, isVisible, slotInfo }: { id?: string; onClick: () => void; isVisible: boolean; slotInfo: string }) => {
     const item = id ? itemById.get(id) : undefined;
     
     if (!isVisible) return null;
@@ -237,13 +300,14 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     return (
       <button
         onClick={onClick}
-        className="w-20 h-20 rounded-xl border-2 border-white hover:border-blue-400 flex items-center justify-center overflow-hidden transition-colors duration-200"
+        className="w-28 h-28 rounded-2xl border-3 border-white hover:border-blue-400 flex items-center justify-center overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
         title={loadingAny ? "Loading products..." : undefined}
+        data-slot={slotInfo}
       >
         {item ? (
           <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-2xl text-white">{loadingAny ? "…" : "+"}</span>
+          <span className="text-4xl text-white font-bold">{loadingAny ? "…" : "+"}</span>
         )}
       </button>
     );
@@ -259,20 +323,28 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     return getCurrentSlotProducts().map(productToItem);
   };
 
+  // Get current slot pagination functions
+  const getCurrentSlotFetchMore = () => {
+    if (!picker.open) return () => Promise.resolve();
+    return getFetchMoreForSlot(picker.idx);
+  };
+
+  const getCurrentSlotHasNextPage = () => {
+    if (!picker.open) return false;
+    return getHasNextPageForSlot(picker.idx);
+  };
+
   // Gender selection prompt
   if (showGenderPrompt) {
     return (
       <div className="min-h-screen bg-black text-white pt-4 pb-28 px-5">
         <div className="mb-6 flex flex-col items-center">
-          <Button onClick={() => navigate("/")} className="text-white text-2xl mb-4">
-            ←
+          <Button onClick={() => navigate("/")} className="text-white text-2xl mb-4 bg-transparent">
+            ← 
           </Button>
         </div>
         
         <div className="text-center mb-8">
-          {/* <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl">👤</span>
-          </div> */}
           <h2 className="text-3xl font-bold text-white mb-3">Select your preference</h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
             Help us show you the most relevant products for your style
@@ -314,8 +386,8 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         return (
     <div className="fixed inset-0 bg-black text-white pt-4 pb-28 px-5 overflow-y-auto">  
       <div className="mb-3 flex flex-col items-center">
-        <Button onClick={() => navigate("/")} className="text-white text-2xl">
-          ←
+        <Button onClick={() => navigate("/")} className="text-white text-2xl bg-transparent">
+          ← 
         </Button>
       </div>
         <div className="w-full mb-1">
@@ -351,34 +423,36 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
           value={nameA}
           onChange={(e) => setNameA(e.target.value)}
           className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
-          placeholder="name of fit"
+          placeholder="Write here"
         />
         <input
           value={nameB}
           onChange={(e) => setNameB(e.target.value)}
           className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
-          placeholder="name of fit"
+          placeholder="Write here"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-6 items-start mb-6">
-        <div className="flex flex-col items-center gap-6">
+      <div className="grid grid-cols-2 gap-8 items-start mb-6">
+        <div className="flex flex-col items-center gap-8">
           {fitAIds.map((id, idx) => (
             <Slot 
               key={idx} 
               id={id} 
               onClick={() => select("A", idx)} 
               isVisible={idx < visibleSlotsA}
+              slotInfo={`A-${idx}`}
             />
           ))}
         </div>
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-8">
           {fitBIds.map((id, idx) => (
             <Slot 
               key={idx} 
               id={id} 
               onClick={() => select("B", idx)} 
               isVisible={idx < visibleSlotsB}
+              slotInfo={`B-${idx}`}
             />
           ))}
         </div>
@@ -405,6 +479,9 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         items={getCurrentSlotItems()}
         onSelect={(item) => placeItem(item.id)}
         products={getCurrentSlotProducts()}
+        fetchMore={getCurrentSlotFetchMore()}
+        hasNextPage={getCurrentSlotHasNextPage()}
+        loading={loadingAny}
       />
     </div>
   );
