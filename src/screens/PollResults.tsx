@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { usePolls } from "../contexts/PollsContext";
 import { useCatalog } from "../contexts/CatalogContext";
 import { Item } from "../types";
@@ -43,6 +43,18 @@ export default function PollResults({
   const itemsA = getItemsByIds(poll.fitA.itemIds);
   const itemsB = getItemsByIds(poll.fitB.itemIds);
 
+  // Animation states for smooth percentage bar
+  const [animatedAPct, setAnimatedAPct] = useState(0);
+  const [animatedBPct, setAnimatedBPct] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedAPct(aPct);
+      setAnimatedBPct(bPct);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [aPct, bPct]);
+
   // Mock product fetching via SDK using GIDs derived from our item ids
   const productIdsA = itemsA.map((i) => buildProductGid(i.id));
   const productIdsB = itemsB.map((i) => buildProductGid(i.id));
@@ -75,17 +87,33 @@ export default function PollResults({
           <span className="text-sm font-medium">{poll.fitA.name}: {aPct}%</span>
           <span className="text-sm font-medium">{poll.fitB.name}: {bPct}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div className="h-full flex">
+        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden relative">
+          <div className="h-full relative">
+            {/* Left bar (blue) - grows from left */}
             <div 
-              className="bg-blue-500 transition-all duration-300"
-              style={{ width: `${aPct}%` }}
+              className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-1000 ease-out"
+              style={{ 
+                width: `${animatedAPct}%`,
+                transformOrigin: 'left'
+              }}
             />
+            {/* Right bar (red) - grows from right */}
             <div 
-              className="bg-red-500 transition-all duration-300"
-              style={{ width: `${bPct}%` }}
+              className="absolute right-0 top-0 h-full bg-red-500 transition-all duration-1000 ease-out"
+              style={{ 
+                width: `${animatedBPct}%`,
+                transformOrigin: 'right'
+              }}
             />
           </div>
+          {/* Shimmer effect overlay */}
+          <div 
+            className="absolute top-0 left-0 h-full w-full opacity-30 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 transition-transform duration-1000 ease-out"
+            style={{
+              transform: `translateX(${animatedAPct > 0 || animatedBPct > 0 ? '100%' : '-100%'}) skewX(-12deg)`,
+              transitionDelay: '200ms'
+            }}
+          />
         </div>
         <div className="flex justify-between mt-2 text-xs text-gray-500">
           <span>{poll.votes.A} votes</span>
