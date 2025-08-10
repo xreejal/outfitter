@@ -1,0 +1,44 @@
+[
+    {
+      "id": "poll_seed_001",
+      "authorId": "user_local",
+      "fit": {
+        "id": "fit_seed_A",
+        "name": "Black",
+        "itemIds": [
+          "10758403981505",
+          "7625335767249",
+          "7130848002083"
+        ]
+      },
+      "savedAt": 1741000000000
+    },
+    {
+      "id": "poll_seed_002",
+      "authorId": "user_local",
+      "fit": {
+        "id": "fit_seed_A",
+        "name": "Brown",
+        "itemIds": [
+          "10758403981505",
+          "7625335767249",
+          "7130848002083"
+        ]
+      },
+      "savedAt": 1742780104000
+    },
+    {
+      "id": "poll_seed_003",
+      "authorId": "user_local",
+      "fit": {
+        "id": "fit_seed_A",
+        "name": "Pink",
+        "itemIds": [
+          "10758403981505",
+          "7625335767249",
+          "7130848002083"
+        ]
+      },
+      "savedAt": 1764780104000
+    }
+  ]

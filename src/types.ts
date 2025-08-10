@@ -26,8 +26,9 @@ export type Poll = {
 };
 
 export type SavedEntry = {
-  pollId: string;
-  choice: "A" | "B";
-  fitId: string;
+  // poll id
+  id: string;
+  authorId: string;
+  fit: Fit;
   savedAt: number;
 };

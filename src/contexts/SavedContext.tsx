@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { SavedEntry } from "../types";
+import { Poll, SavedEntry } from "../types";
 import {
   ensureSeedsLoaded,
   getLocal,
@@ -34,10 +34,8 @@ export function SavedProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     ensureSeedsLoaded().then(() => {
-      const raw = getLocal<{ savedFits: SavedEntry[] }>(storageKeys.SAVED_KEY, {
-        savedFits: [],
-      });
-      setSaved(raw.savedFits);
+      const raw = getLocal<SavedEntry[]>(storageKeys.SAVED_KEY, []);
+      setSaved(raw);
     });
   }, []);
 
@@ -45,21 +43,31 @@ export function SavedProvider({ children }: { children: React.ReactNode }) {
     () => ({
       saved,
       isSaved: (pollId: string, fitId: string) =>
-        saved.some((s) => s.pollId === pollId && s.fitId === fitId),
-      toggleSave: (pollId: string, fitId: string, choice: "A" | "B") => {
+        saved.some((s) => s.id === pollId && s.fit.id === fitId),
+      toggleSave: (pollId: string, fitId: string, _choice: "A" | "B") => {
         let next: SavedEntry[];
-        const existing = saved.find(
-          (s) => s.pollId === pollId && s.fitId === fitId
-        );
+        const existing = saved.find((s) => s.id === pollId && s.fit.id === fitId);
         if (existing) {
-          next = saved.filter(
-            (s) => !(s.pollId === pollId && s.fitId === fitId)
-          );
+          next = saved.filter((s) => !(s.id === pollId && s.fit.id === fitId));
         } else {
-          next = [{ pollId, fitId, choice, savedAt: Date.now() }, ...saved];
+          const polls = getLocal<Poll[]>(storageKeys.POLLS_KEY, []);
+          const poll = polls.find((p) => p.id === pollId);
+          const fit = poll ? [poll.fitA, poll.fitB].find((f) => f.id === fitId) : undefined;
+          if (!poll || !fit) {
+            // If we can't resolve the poll/fit, keep state unchanged
+            next = saved;
+          } else {
+            const entry: SavedEntry = {
+              id: poll.id,
+              authorId: poll.authorId,
+              fit,
+              savedAt: Date.now(),
+            };
+            next = [entry, ...saved];
+          }
         }
         setSaved(next);
-        setLocal(storageKeys.SAVED_KEY, { savedFits: next });
+        setLocal(storageKeys.SAVED_KEY, next);
       },
     }),
     [saved]
