@@ -54,9 +54,9 @@ export function App() {
       <CatalogProvider>
         <PollsProvider>
           <SavedProvider>
-            <div className="pb-20 min-h-screen bg-white">
+            <div className={`min-h-screen bg-white ${route !== "/vote" ? "pb-20" : ""}`}>
               <Screen />
-              <BottomNav route={route} navigate={navigate} />
+              {route !== "/vote" && <BottomNav route={route} navigate={navigate} />}
             </div>
           </SavedProvider>
         </PollsProvider>
