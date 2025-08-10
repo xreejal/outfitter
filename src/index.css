@@ -782,7 +782,7 @@ body {
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .fab-main {
@@ -987,4 +987,3 @@ body {
     padding: 4px 10px;
   }
 }
-
