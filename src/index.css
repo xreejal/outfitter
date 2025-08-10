@@ -226,12 +226,67 @@
   --transition-secondary: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-body {
-  background: var(--bg-primary);
+html, body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: var(--text-primary);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+}
+
+/* Force root element to have dark background */
+#root {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
+  min-height: 100vh;
+}
+
+/* Force any containers to inherit dark background */
+.mini-container, [data-mini-container] {
+  background: transparent !important;
+}
+
+/* Force ALL page containers and screens to have black backgrounds */
+[class*="Page"], [class*="Screen"], 
+main, .main, [role="main"],
+.app, .application, [data-app] {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
+  min-height: 100vh !important;
+}
+
+/* Force specific page/screen components */
+.bg-gradient-to-br,
+[class*="bg-gradient"],
+[style*="background-color"],
+[style*="background:"],
+[style*="background-image"] {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
+}
+
+/* Force any remaining Shopify Mini containers */
+[data-shopify-ui]:not(.landing-page *),
+[data-testid]:not(.landing-page *),
+.shopify-mini:not(.landing-page *) {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
+}
+
+/* Nuclear option - force EVERYTHING to have black background except landing page */
+*:not(.landing-page):not(.landing-page *):not([class*="liquid-glass"]):not([class*="corner-"]):not([class*="fab-"]):not([class*="particle"]):not([class*="orb"]):not(svg):not(path):not(img):not(video) {
+  background-color: transparent !important;
+}
+
+/* Force the viewport and any wrapper containers */
+html {
+  background: #000000 !important;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
+}
+
+/* Force any potential Shopify Mini viewport or app containers */
+[data-mini-app], [data-mini-viewport], [class*="Mini"], [class*="mini-"] {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%) !important;
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -422,6 +477,161 @@ body {
   border: 1px solid var(--border-primary);
   border-radius: 20px;
   box-shadow: var(--shadow-hover);
+}
+
+/* ===== SHOPIFY COMPONENT OVERRIDES ===== */
+/* Override all default blue/colored Shopify components to use black/gray */
+[data-shopify-ui]:not(.landing-page *) {
+  /* Buttons */
+  --button-primary-bg: #1a1a1a !important;
+  --button-primary-color: white !important;
+  --button-primary-border: rgba(255, 255, 255, 0.2) !important;
+  --button-outline-bg: transparent !important;
+  --button-outline-color: white !important;
+  --button-outline-border: rgba(255, 255, 255, 0.2) !important;
+  --button-secondary-bg: #374151 !important;
+  --button-secondary-color: white !important;
+  
+  /* Cards */
+  --card-bg: rgba(255, 255, 255, 0.1) !important;
+  --card-border: rgba(255, 255, 255, 0.2) !important;
+  
+  /* Other components */
+  --separator-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Global override for any blue colors that might slip through */
+* {
+  --blue-50: #f8fafc !important;
+  --blue-100: #f1f5f9 !important;
+  --blue-200: #e2e8f0 !important;
+  --blue-300: #e3e4e6 !important;
+  --blue-400: #a5a6a6 !important;
+  --blue-500: #737475 !important;
+  --blue-600: #484849 !important;
+  --blue-700: #282829 !important;
+  --blue-800: #131415 !important;
+  --blue-900: #000000 !important;
+}
+
+/* Force all Shopify buttons to be black/gray except in landing page */
+button:not(.landing-page button):not([class*="liquid-glass"]):not([class*="corner-"]):not([class*="fab-"]) {
+  background-color: #374151 !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+button[data-variant="outline"]:not(.landing-page button) {
+  background-color: transparent !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+button[data-variant="outline"]:hover:not(.landing-page button) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Force all cards to be glass style except in landing page */
+div[class*="card"]:not(.landing-page div),
+section[class*="card"]:not(.landing-page section) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Enhanced Shopify ProductCard components with beautiful glass styling */
+[data-testid="product-card"],
+[class*="ProductCard"],
+.product-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 50%, rgba(0, 0, 0, 0.1) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(25px) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.product-card:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.05) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 30px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced card backgrounds with sophisticated gradients */
+div[class*="card"]:not(.landing-page div),
+section[class*="card"]:not(.landing-page section) {
+  background: linear-gradient(135deg, 
+    rgba(30, 30, 30, 0.9) 0%, 
+    rgba(20, 20, 20, 0.8) 30%, 
+    rgba(15, 15, 15, 0.7) 70%, 
+    rgba(10, 10, 10, 0.6) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Enhanced button styling with gradient variations */
+button:not(.landing-page button):not([class*="liquid-glass"]):not([class*="corner-"]):not([class*="fab-"]) {
+  background: linear-gradient(135deg, 
+    rgba(55, 55, 55, 0.95) 0%, 
+    rgba(45, 45, 45, 0.9) 50%, 
+    rgba(35, 35, 35, 0.85) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(15px) !important;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button:hover:not(.landing-page button):not([class*="liquid-glass"]):not([class*="corner-"]):not([class*="fab-"]) {
+  background: linear-gradient(135deg, 
+    rgba(75, 75, 75, 0.95) 0%, 
+    rgba(65, 65, 65, 0.9) 50%, 
+    rgba(55, 55, 55, 0.85) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 15px rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Outline button variant */
+button[data-variant="outline"]:not(.landing-page button) {
+  background: linear-gradient(135deg, 
+    rgba(20, 20, 20, 0.6) 0%, 
+    rgba(15, 15, 15, 0.4) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+button[data-variant="outline"]:hover:not(.landing-page button) {
+  background: linear-gradient(135deg, 
+    rgba(40, 40, 40, 0.8) 0%, 
+    rgba(30, 30, 30, 0.6) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Enhanced modal and overlay backgrounds */
+[role="dialog"],
+.modal-overlay,
+[class*="modal"] {
+  background: linear-gradient(135deg, 
+    rgba(10, 10, 10, 0.95) 0%, 
+    rgba(20, 20, 20, 0.9) 50%, 
+    rgba(15, 15, 15, 0.95) 100%) !important;
+  backdrop-filter: blur(30px) !important;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */

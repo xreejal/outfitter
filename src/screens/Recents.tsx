@@ -95,7 +95,7 @@ export default function Recents({
               key={p.id}
               className={`rounded-xl p-4 transition-all duration-500 glass-card ${
                 isUnlocking 
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-yellow-400 shadow-2xl scale-105' 
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 border-2 border-yellow-400 shadow-2xl scale-105' 
                   : isLocked 
                     ? 'border border-white/10' 
                     : 'border border-gray-400/30'
