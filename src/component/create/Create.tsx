@@ -167,14 +167,29 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   const loadingAny = loadingOuterwear || loadingTop || loadingBottom || loadingPopular || loadingAttributes;
   const errorAny = errorOuterwear || errorTop || errorBottom;
 
-  // Calculate how many slots to show for each option
-  const getVisibleSlots = (ids: string[]) => {
+  // Calculate how many slots to show for each option - more restrictive
+  const getVisibleSlots = (ids: string[], isOptionA: boolean) => {
     const filledCount = ids.filter(id => id !== "").length;
-    return Math.min(filledCount + 1, 3); // Show filled slots + 1 empty slot, max 3
+    
+    // For the first slot, always show it
+    if (filledCount === 0) return 1;
+    
+    // For subsequent slots, only show if the previous slot is filled
+    // AND if the corresponding slot in the other option is also filled
+    const otherOptionIds = isOptionA ? fitBIds : fitAIds;
+    const otherOptionFilledCount = otherOptionIds.filter(id => id !== "").length;
+    
+    // Only show next slot if both options have the same number of filled slots
+    if (filledCount <= otherOptionFilledCount) {
+      return Math.min(filledCount + 1, 3); // Show filled slots + 1 empty slot, max 3
+    }
+    
+    // If this option is ahead, only show filled slots
+    return filledCount;
   };
 
-  const visibleSlotsA = getVisibleSlots(fitAIds);
-  const visibleSlotsB = getVisibleSlots(fitBIds);
+  const visibleSlotsA = getVisibleSlots(fitAIds, true);
+  const visibleSlotsB = getVisibleSlots(fitBIds, false);
 
   const canPublish = useMemo(
     () => desc.trim().length > 0 && fitAIds.every(Boolean) && fitBIds.every(Boolean),
@@ -222,13 +237,13 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
     return (
       <button
         onClick={onClick}
-        className="w-20 h-20 rounded-full border-2 border-black flex items-center justify-center overflow-hidden"
+        className="w-20 h-20 rounded-xl border-2 border-white hover:border-blue-400 flex items-center justify-center overflow-hidden transition-colors duration-200"
         title={loadingAny ? "Loading products..." : undefined}
       >
         {item ? (
           <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-2xl">{loadingAny ? "…" : "+"}</span>
+          <span className="text-2xl text-white">{loadingAny ? "…" : "+"}</span>
         )}
       </button>
     );
@@ -247,67 +262,79 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
   // Gender selection prompt
   if (showGenderPrompt) {
     return (
-      <div className="pt-4 pb-28 px-5">
-        <div className="mb-3 flex flex-col items-center">
-          <Button onClick={() => navigate("/")} className="text-black text-2xl">
+      <div className="min-h-screen bg-black text-white pt-4 pb-28 px-5">
+        <div className="mb-6 flex flex-col items-center">
+          <Button onClick={() => navigate("/")} className="text-white text-2xl mb-4">
             ←
           </Button>
         </div>
-        <div className="w-full mb-4">
-          <h2 className="text-2xl font-bold text-center">Select your preference</h2>
-          <p className="text-center text-gray-600 mt-2">
-            Help us show you the most relevant products
+        
+        <div className="text-center mb-8">
+          {/* <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-2xl">👤</span>
+          </div> */}
+          <h2 className="text-3xl font-bold text-white mb-3">Select your preference</h2>
+          <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
+            Help us show you the most relevant products for your style
           </p>
         </div>
         
-        <div className="flex flex-col gap-4 mt-8">
-          <Button 
+        <div className="space-y-4 max-w-sm mx-auto">
+          <button 
             onClick={() => handleGenderSelect('male')}
-            className="py-4 text-lg"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
           >
-            Men's Products
-          </Button>
-          <Button 
+            <span className="text-lg">Men's Products</span>
+          </button>
+          
+          <button 
             onClick={() => handleGenderSelect('female')}
-            className="py-4 text-lg"
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
           >
-            Women's Products
-          </Button>
-          <Button 
+            <span className="text-lg">Women's Products</span>
+          </button>
+          
+          <button 
             onClick={() => handleGenderSelect('unisex')}
-            className="py-4 text-lg"
+            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
           >
-            Show All Products
-          </Button>
+            <span className="text-lg">Show All Products</span>
+          </button>
+        </div>
+        
+        <div className="mt-8 text-center">
+          <p className="text-gray-400 text-sm">
+            You can change this preference later in settings
+          </p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="pt-4 pb-28 px-5">
+        return (
+    <div className="fixed inset-0 bg-black text-white pt-4 pb-28 px-5 overflow-y-auto">  
       <div className="mb-3 flex flex-col items-center">
-        <Button onClick={() => navigate("/")} className="text-black text-2xl">
+        <Button onClick={() => navigate("/")} className="text-white text-2xl">
           ←
         </Button>
       </div>
         <div className="w-full mb-1">
-          <h2 className="text-2xl font-bold text-center">Create your poll</h2>
+          <h2 className="text-2xl font-bold text-center text-white">Create your poll</h2>
         </div>
 
       {loadingAny && (
-        <div className="mb-3 text-center text-sm text-gray-600">
+        <div className="mb-3 text-center text-sm text-gray-300">
           {loadingAttributes ? "Loading your preferences..." : "Searching for products…"}
         </div>
       )}
       {errorAny && (
-        <div className="mb-3 text-center text-sm text-red-600">
+        <div className="mb-3 text-center text-sm text-red-400">
           Couldn't search for products. Using popular products instead.
         </div>
       )}
       
       {effectiveGender && (
-        <div className="mb-3 text-center text-sm text-blue-600">
+        <div className="mb-3 text-center text-sm text-blue-400">
           Showing {effectiveGender === 'male' ? 'men' : effectiveGender === 'female' ? 'women' : 'all'} products for you
         </div>
       )}
@@ -323,13 +350,13 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
         <input
           value={nameA}
           onChange={(e) => setNameA(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
+          className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
           placeholder="name of fit"
         />
         <input
           value={nameB}
           onChange={(e) => setNameB(e.target.value)}
-          className="bg-gray-200 rounded px-3 py-2"
+          className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-blue-500"
           placeholder="name of fit"
         />
       </div>
@@ -360,11 +387,15 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        className="w-full rounded-xl bg-gray-200 p-4 max-h-12 mb-4"
+        className="w-full rounded-xl bg-gray-800 text-white border border-gray-600 p-4 max-h-12 mb-4 placeholder-gray-400 focus:outline-none focus:border-blue-500"
         placeholder="Description"
       />
 
-      <Button onClick={publish} disabled={!canPublish || loadingAny}>
+      <Button 
+        onClick={publish} 
+        disabled={!canPublish || loadingAny}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+      >
         Publish
       </Button>
 
