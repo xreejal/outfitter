@@ -444,7 +444,7 @@ export default function Create({ navigate }: { navigate: (path: string) => void 
                       {category}
                       <button 
                         onClick={() => handleSubcategorySelect(category)}
-                        className="text-white hover:text-red-400"
+                        className="text-white/70 hover:text-red-400 w-4 h-4 flex items-center justify-center text-lg font-light leading-none"
                       >
                         ×
                       </button>
