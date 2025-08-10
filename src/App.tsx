@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import BottomNav from "./components/BottomNav";
 import Landing from "./screens/Landing";
-import Create from "./screens/Create";
+import Create from "./component/create/Create";
 import Vote from "./screens/Vote";
 import Recents from "./screens/Recents";
 import Saved from "./screens/Saved";
