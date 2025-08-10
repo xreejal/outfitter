@@ -27,13 +27,15 @@ export default function Create({
     idx: number;
   }>({ open: false, col: "A", idx: 0 });
 
-  const canPublish = useMemo(
-    () =>
-      desc.trim().length > 0 &&
-      fitAIds.every(Boolean) &&
-      fitBIds.every(Boolean),
-    [desc, fitAIds, fitBIds]
-  );
+  // const canPublish = useMemo(
+  //   () =>
+  //     desc.trim().length > 0 &&
+  //     fitAIds.every(Boolean) &&
+  //     fitBIds.every(Boolean),
+  //   [desc, fitAIds, fitBIds]
+  // );
+
+  const canPublish = true;
 
   function select(col: "A" | "B", idx: number) {
     setPicker({ open: true, col, idx });

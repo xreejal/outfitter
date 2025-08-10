@@ -60,7 +60,7 @@ function SavedFit({ entry }: { entry: SavedEntry }) {
 
         <div className="grid grid-cols-2 gap-2">
           {loading && productIds.map((id) => <ProductCardSkeleton key={`sk-${id}`} />)}
-          {!loading && (products ?? []).map((product) => (
+          {!loading && (products ?? []).map((product: any) => (
             <ProductCard
               key={product.id}
               product={product}

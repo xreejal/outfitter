@@ -469,7 +469,7 @@ export default function Landing({
             <Button
               variant="default"
               className="liquid-glass-primary"
-              onClick={() => navigate("/vote")}
+              onClick={() => navigate("/create")}
             >
               <span className="button-text">Choose Fits</span>
             </Button>
